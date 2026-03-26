@@ -9,6 +9,8 @@ Made with: Github Copilot / Claude Sonnet 4.6
 
 This file summarizes the command line statements to push a commit out to github. 
 
+> **VS Code setting:** `settings.json` is configured with `latex-workshop.latex.autoClean.run: "onBuilt"` — auxiliary `.tex` files (`.aux`, `.log`, `.toc`, etc.) are automatically deleted after every compilation.
+
 
 
 ---
