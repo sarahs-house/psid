@@ -273,8 +273,63 @@ git remote -v
 git diff
 \end{lstlisting}
 
-% -------------------------------------------------------
-\section{VS Code Command Line}
+\subsection{After updating \texttt{.gitignore}: untrack already-tracked files}
+
+If you add a file type to \texttt{.gitignore} but Git was already tracking those files (i.e., they were previously committed), Git will keep tracking them. You need to explicitly untrack them.
+
+First, see what is currently tracked that you want to remove:
+
+\begin{lstlisting}[style=bash]
+git ls-files | grep -E "\.(aux|log|toc|out|fls|synctex\.gz|fdb_latexmk)$"
+\end{lstlisting}
+
+Untrack specific files (they stay on your computer, just removed from GitHub):
+
+\begin{lstlisting}[style=bash]
+git rm --cached file1.aux file2.log   # list each file to untrack
+\end{lstlisting}
+
+Then commit and push the removal:
+
+\begin{lstlisting}[style=bash]
+git add .gitignore
+git commit -m "remove tracked files now in gitignore"
+git push
+\end{lstlisting}
+
+\subsection{If push is rejected because GitHub has newer changes (stash workflow)}
+
+This happens when GitHub has commits you don't have locally --- e.g., you pushed from another machine, or edited a file on GitHub directly. Your local commit exists but Git refuses to push because the histories have diverged.
+
+\textbf{Step 1:} Stash any uncommitted local changes so they don't block the pull:
+
+\begin{lstlisting}[style=bash]
+git stash
+\end{lstlisting}
+
+\textbf{Step 2:} Pull and rebase (replays your local commit on top of the remote changes):
+
+\begin{lstlisting}[style=bash]
+git pull --rebase origin main
+\end{lstlisting}
+
+\textbf{Step 3:} Restore your stashed changes:
+
+\begin{lstlisting}[style=bash]
+git stash pop
+\end{lstlisting}
+
+\textbf{Step 4:} Push:
+
+\begin{lstlisting}[style=bash]
+git push
+\end{lstlisting}
+
+Or as one line:
+
+\begin{lstlisting}[style=bash]
+git stash && git pull --rebase origin main && git stash pop && git push
+\end{lstlisting}
 
 \subsection{Open files \& folders}
 

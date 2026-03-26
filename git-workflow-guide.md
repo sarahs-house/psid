@@ -188,6 +188,65 @@ git diff
 
 ---
 
+### After updating `.gitignore`: untrack already-tracked files
+
+If you add a file type to `.gitignore` but Git was already tracking those files (i.e., they were previously committed), Git will keep tracking them. You need to explicitly untrack them.
+
+Untrack specific files (they stay on your computer, just removed from GitHub):
+
+```bash
+git rm --cached filename.dta
+```
+
+Untrack everything matching your current `.gitignore` in one go:
+
+```bash
+git ls-files | grep -E "\.(aux|log|toc|out|fls|synctex\.gz|fdb_latexmk)$"
+```
+This lists what's currently tracked that matches those extensions. Then untrack them:
+
+```bash
+git rm --cached file1.aux file2.log   # list each file
+```
+
+Then commit and push the removal:
+
+```bash
+git add .gitignore
+git commit -m "remove tracked files now in gitignore"
+git push
+```
+
+---
+
+### If push is rejected because GitHub has newer changes (stash workflow)
+
+This happens when someone (or you from another machine) pushed to GitHub after your last pull. Your local commit exists but Git won't push because the histories have diverged.
+
+**Step 1:** Stash any uncommitted local changes so they don't block the pull:
+```bash
+git stash
+```
+**Step 2:** Pull and rebase (replays your commit on top of the remote changes):
+```bash
+git pull --rebase origin main
+```
+**Step 3:** Restore your stashed changes:
+```bash
+git stash pop
+```
+**Step 4:** Push:
+```bash
+git push
+```
+
+Or as one line:
+```bash
+git stash && git pull --rebase origin main && git stash pop && git push
+```
+
+---
+
 ## VS Code Command Line
 
 ### Open files & folders
