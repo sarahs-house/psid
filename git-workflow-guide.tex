@@ -1,0 +1,314 @@
+\documentclass[11pt]{article}
+
+% --- Page layout ---
+\usepackage[top=1in, bottom=1in, left=1.25in, right=1.25in]{geometry}
+
+% --- Fonts & encoding ---
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Color ---
+\usepackage{xcolor}
+\definecolor{codebg}{HTML}{F4F4F4}
+\definecolor{codeborder}{HTML}{CCCCCC}
+\definecolor{commentgray}{HTML}{777777}
+\definecolor{accentblue}{HTML}{2563EB}
+\definecolor{sectionrule}{HTML}{DDDDDD}
+
+% --- Code listings ---
+\usepackage{listings}
+\lstdefinestyle{bash}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    framesep=6pt,
+    rulecolor=\color{codeborder},
+    commentstyle=\color{commentgray}\itshape,
+    morecomment=[l]{\#},
+    xleftmargin=8pt,
+    xrightmargin=8pt,
+    aboveskip=6pt,
+    belowskip=6pt,
+}
+
+% --- Section numbering: Roman numerals for sections ---
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+% --- Section formatting ---
+\usepackage{titlesec}
+\titleformat{\section}[block]
+  {\large\bfseries\color{accentblue}}
+  {\thesection.~}{0pt}{}
+  [\vspace{2pt}\textcolor{sectionrule}{\hrule}\vspace{4pt}]
+
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries}
+  {\thesubsection)~}{0pt}{}
+
+\titlespacing*{\section}{0pt}{18pt}{6pt}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+% --- Paragraphs & spacing ---
+\usepackage{parskip}
+\setlength{\parskip}{6pt}
+
+% --- Table of contents depth & formatting ---
+\setcounter{tocdepth}{2}
+\usepackage{titletoc}
+\titlecontents{section}
+  [0pt]
+  {\vspace{6pt}\bfseries\color{accentblue}}
+  {\thecontentslabel.\ }
+  {}
+  {\titlerule*[6pt]{.}\contentspage}
+
+\titlecontents{subsection}
+  [1.8em]
+  {}
+  {\thecontentslabel)\ }
+  {}
+  {\titlerule*[6pt]{.}\contentspage}
+
+% --- Hyperlinks (load last) ---
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  bookmarksnumbered=true,
+}
+
+% --- Header/footer ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\textcolor{gray}{\small Git Workflow Guide}}
+\lhead{\textcolor{gray}{\small PSID Project}}
+\rfoot{\textcolor{gray}{\small \thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% -------------------------------------------------------
+\begin{document}
+
+% --- Title block ---
+\begin{center}
+  {\LARGE\bfseries Git Workflow Guide}\\[4pt]
+  {\large PSID Project}\\[10pt]
+  {\normalsize Sarah Sullivan}\\[4pt]
+  {\small Created: March 25, 2026}\\[4pt]
+  {\small Last Updated: March 25, 2026}\\[4pt]
+  {\small Made with: GitHub Copilot / Claude Sonnet 4.6}
+\end{center}
+
+\vspace{4pt}
+\textcolor{sectionrule}{\hrule}
+\vspace{10pt}
+
+This file summarizes the command line statements to push a commit to GitHub.
+
+\smallskip
+\noindent\colorbox{codebg}{\parbox{\dimexpr\linewidth-2\fboxsep}{\small\textbf{VS Code setting:} \texttt{settings.json} is configured with \texttt{latex-workshop.latex.autoClean.run: "onBuilt"} --- auxiliary \texttt{.tex} files (\texttt{.aux}, \texttt{.log}, \texttt{.toc}, etc.) are automatically deleted after every compilation.}}
+
+\vspace{6pt}
+\tableofcontents
+\vspace{12pt}
+\textcolor{sectionrule}{\hrule}
+\vspace{6pt}
+
+% -------------------------------------------------------
+\section{Workflow}
+
+\subsection{Everyday: push VS Code to GitHub}
+
+\begin{lstlisting}[style=bash]
+git pull                        # get latest changes
+git add .                       # stage changes
+git commit -m "comment changes"
+git push                        # upload to GitHub
+\end{lstlisting}
+
+\subsection{Collaborating: push GitHub changes to VS Code}
+
+\begin{lstlisting}[style=bash]
+git pull origin main
+git pull
+\end{lstlisting}
+
+% -------------------------------------------------------
+\section{Set Up}
+
+\subsection{Login}
+
+\begin{lstlisting}[style=bash]
+git config --global user.name "Your Name"
+git config --global user.email "sbsullivan19@gmail.com"
+\end{lstlisting}
+
+\subsection{Navigate to repo folder}
+
+\begin{lstlisting}[style=bash]
+cd "/Users/sarsul/Library/CloudStorage/Dropbox-UniversityofMichigan/Sarah Sullivan/SARAH-SOFT/research/psid"
+\end{lstlisting}
+
+\subsection{Initialize}
+
+\begin{lstlisting}[style=bash]
+git init
+git branch -M main
+\end{lstlisting}
+
+\subsection{Edit \texttt{.gitignore}}
+
+Open \texttt{.gitignore} in VS Code:
+
+\begin{lstlisting}[style=bash]
+code .gitignore
+\end{lstlisting}
+
+Add files and folders to exclude from the repository. Currently, I am only uploading \texttt{.do} files to the repository.
+
+After editing, stage and commit \texttt{.gitignore}:
+
+\begin{lstlisting}[style=bash]
+git add .gitignore
+git commit -m "update gitignore"
+\end{lstlisting}
+
+If files were \textbf{already tracked} by Git before you added them to \texttt{.gitignore}, Git will keep tracking them. Untrack a specific file without deleting it:
+
+\begin{lstlisting}[style=bash]
+git rm --cached filename.dta
+\end{lstlisting}
+
+Untrack everything and re-add (use carefully):
+
+\begin{lstlisting}[style=bash]
+git rm --cached -r .
+git add .
+git commit -m "remove tracked files now in gitignore"
+\end{lstlisting}
+
+\subsection{Stage and commit}
+
+\begin{lstlisting}[style=bash]
+git add .
+git status            # check what will be committed
+git commit -m "COMMIT MESSAGE"
+\end{lstlisting}
+
+\subsection{Connect to remote (first time only)}
+
+\begin{lstlisting}[style=bash]
+git remote add origin https://github.com/sarahs-house/psid.git
+\end{lstlisting}
+
+Check it worked:
+
+\begin{lstlisting}[style=bash]
+git remote -v
+\end{lstlisting}
+
+\subsection{Push to GitHub}
+
+\begin{lstlisting}[style=bash]
+git push -u origin main
+\end{lstlisting}
+
+After the first push, you can just use:
+
+\begin{lstlisting}[style=bash]
+git push
+\end{lstlisting}
+
+% -------------------------------------------------------
+\section{Troubleshooting}
+
+\subsection{If push is rejected (histories don't match)}
+
+\begin{lstlisting}[style=bash]
+git fetch origin
+git rebase origin/main
+\end{lstlisting}
+
+Or if you need to force-merge unrelated histories:
+
+\begin{lstlisting}[style=bash]
+git pull origin main --allow-unrelated-histories
+git push -u origin main
+\end{lstlisting}
+
+\subsection{Lock file error}
+
+\begin{lstlisting}[style=bash]
+fatal: Unable to create '.git/index.lock': File exists.
+\end{lstlisting}
+
+Fix:
+
+\begin{lstlisting}[style=bash]
+rm -f .git/index.lock
+\end{lstlisting}
+
+\subsection{Unstage a file}
+
+\begin{lstlisting}[style=bash]
+git restore --staged filename.do
+\end{lstlisting}
+
+\subsection{Check status / history / remotes}
+
+\begin{lstlisting}[style=bash]
+git status
+git log --oneline
+git remote -v
+\end{lstlisting}
+
+\subsection{See what changed}
+
+\begin{lstlisting}[style=bash]
+git diff
+\end{lstlisting}
+
+% -------------------------------------------------------
+\section{VS Code Command Line}
+
+\subsection{Open files \& folders}
+
+\begin{lstlisting}[style=bash]
+code .                          # open current folder in VS Code
+code filename.do                # open a specific file in VS Code
+open filename.pdf               # open file in default app (e.g. PDF viewer)
+open -a "TeXShop" file.tex      # open file in a specific app
+\end{lstlisting}
+
+\subsection{Navigate directories}
+
+\begin{lstlisting}[style=bash]
+pwd                             # print current directory
+ls                              # list files in current directory
+ls -la                         # list files with details and hidden files
+cd foldername                  # go into a folder
+cd ..                           # go up one level
+cd -                            # go back to previous directory
+\end{lstlisting}
+
+\subsection{Compile LaTeX}
+
+\begin{lstlisting}[style=bash]
+pdflatex filename.tex           # compile .tex to PDF (run twice for TOC)
+\end{lstlisting}
+
+\subsection{File operations}
+
+\begin{lstlisting}[style=bash]
+mv oldname.do newname.do        # rename a file
+cp file.do copy_of_file.do      # copy a file
+rm filename                     # delete a file (careful -- no undo!)
+mkdir foldername                # create a new folder
+\end{lstlisting}
+
+\end{document}

@@ -9,7 +9,6 @@ _log/
 *.stpr
 *.tmp
 *.txt
-*.tex
 *.png
 *.ipynb
 *.csv
@@ -17,7 +16,6 @@ _log/
 *.aux
 *.out
 *.lof
-*.pdf
 *.fls
 *.synctex.gz
 
