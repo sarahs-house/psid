@@ -29,18 +29,17 @@ This repository contains code for the 2026 family structure project using the **
 
 ## Repository Structure
 
-```
-psid/
-├── 00_globals.do               # global macros and paths
-├── 00_fims_*.do / .dta         # family interview member data
-├── 00_RENAMING_v1.do           # variable renaming script
-├── _psid                       # main data wrangling file
-├── A1_vs                       # fOLDer
-├── git-workflow-guide.md       # Git command reference (Markdown)
-├── git-workflow-guide.tex      # Git command reference (LaTeX/PDF)
-├── .gitignore                  # excluded file types
-└── _archive/                   # older script versions
-```
+| File / Folder | Description |
+|---------------|-------------|
+| `00_globals.do` | Global macros and paths |
+| `00_fims_*.do` / `.dta` | Family interview member data |
+| `00_RENAMING_v1.do` | Variable renaming script |
+| `_psid` | Main data wrangling file |
+| `A1_vs/` | Folder |
+| `git-workflow-guide.md` | Git command reference (Markdown) |
+| `git-workflow-guide.tex` | Git command reference (LaTeX/PDF) |
+| `.gitignore` | Excluded file types |
+| `_archive/` | Older script versions |
 
 Raw PSID family-year data folders (`fam1968/` through `fam2023er/`) and individual-level data (`ind2023er/`) are stored locally but excluded from the repository via `.gitignore`.
 
