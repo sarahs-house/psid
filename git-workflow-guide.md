@@ -50,10 +50,38 @@ git branch -M main
 ```
 
 ---
-### 4) Edit `.gitignore'
+### 4) Edit `.gitignore`
 
-Open `.gitignore' and edit to exclude files and folders from the repository. Currently, 
+Open `.gitignore` in VS Code:
+
+```bash
+code .gitignore
+```
+
+Add files and folders to exclude from the repository. Currently, 
 I am only uploading do files to the repository.
+
+After editing, stage and commit `.gitignore`:
+
+```bash
+git add .gitignore
+git commit -m "update gitignore"
+```
+
+If files were **already tracked** by Git before you added them to `.gitignore`,
+Git will keep tracking them. Untrack a specific file without deleting it:
+
+```bash
+git rm --cached filename.dta
+```
+
+Untrack everything and re-add (nuclear option — use carefully):
+
+```bash
+git rm --cached -r .
+git add .
+git commit -m "remove tracked files now in gitignore"
+```
 
 
 ---
@@ -154,4 +182,43 @@ git remote -v
 
 ```bash
 git diff
+```
+
+---
+
+## VS Code Command Line
+
+### Open files & folders
+
+```bash
+code .                          # open current folder in VS Code
+code filename.do                # open a specific file in VS Code
+open filename.pdf               # open file in default app (e.g. PDF viewer)
+open -a "TeXShop" file.tex      # open file in a specific app
+```
+
+### Navigate directories
+
+```bash
+pwd                             # print current directory
+ls                              # list files in current directory
+ls -la                         # list files with details and hidden files
+cd foldername                  # go into a folder
+cd ..                           # go up one level
+cd -                            # go back to previous directory
+```
+
+### Compile LaTeX
+
+```bash
+pdflatex filename.tex           # compile .tex to PDF (run twice for TOC)
+```
+
+### File operations
+
+```bash
+mv oldname.do newname.do        # rename a file
+cp file.do copy_of_file.do      # copy a file
+rm filename                     # delete a file (careful — no undo!)
+mkdir foldername                # create a new folder
 ```

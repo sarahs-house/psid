@@ -13,6 +13,14 @@ _log/
 *.png
 *.ipynb
 *.csv
+*.toc
+*.aux
+*.out
+*.lof
+*.pdf
+*.fls
+*.synctex.gz
+
 
 pycache/
 *.pyc
