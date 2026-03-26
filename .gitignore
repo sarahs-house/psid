@@ -18,7 +18,7 @@ _log/
 *.lof
 *.fls
 *.synctex.gz
-
+*.synctex(busy)
 
 pycache/
 *.pyc
