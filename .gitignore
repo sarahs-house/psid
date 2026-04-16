@@ -19,6 +19,14 @@ _log/
 *.synctex.gz
 *.synctex(busy)
 
+
+A1_vs/A1_python_v1.ipynb
+__archive/02_analysis_v3.ipynb
+__archive/03_eda_v1.ipynb
+__archive/final_data_v1.ipynb
+__archive/final_data_v2.ipynb
+__archive/final_data_v3.ipynb
+
 pycache/
 *.pyc
 .ipynb_checkpoints/
