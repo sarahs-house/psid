@@ -1,0 +1,810 @@
+{\rtf1\ansi\deff0 {\fonttbl{\f0\fnil Garamond;}}
+{\info {\author .}{\company .}{\title .}}
+\deflang1033\plain\fs20
+{\footer\pard\qc\plain\f0\fs20\chpgn\par}
+{
+{\b\qc\line Description of variables }{\par}
+{\trowd\trgaph108\trleft-108
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx1100
+\fs20 \pard\intbl \ql { position}\cell
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx3500
+\fs20 \pard\intbl \ql { name}\cell
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx4350
+\fs20 \pard\intbl \ql { type}\cell
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx5450
+\fs20 \pard\intbl \ql { isnumeric}\cell
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx6410
+\fs20 \pard\intbl \ql { vallab}\cell
+\clbrdrt\brdrw10\brdrs \clbrdrb\brdrw25\brdrs \cellx8910
+\fs20 \pard\intbl \ql { varlab}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 1}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {fam}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {1968 INTERVIEW NUMBER}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 2}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {ID}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Individual ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 3}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {yr}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Year}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 4}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {age}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Age}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 5}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {race}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Race/Ethnicity of Ref Person}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 6}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {sex}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {ER32000L}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Sex of Individual}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 7}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {head_ed}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Highest Education of Ref Person}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 8}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {FU_income}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Family Unit Income in year-1}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 9}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {who_left}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {strL}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {ID's of indivs who left FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 10}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {who_came}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {strL}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {ID's of indivs who came into FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 11}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {ages_left}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {str208}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Ages of indivs who left FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 12}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {ages_came}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {strL}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Ages of indivs who came into FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 13}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {adult_came}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Adult came into FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 14}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {adult_left}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Adult left FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 15}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {n_adults_left}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number of adults who left FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 16}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {n_adults_came}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number of adults who came into FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 17}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {hhr_}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {strL}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Household Roster ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 18}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {ages}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {str224}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Ages of all individuals in FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 19}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {fam_number}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {int}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number in family unit}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 20}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {mom_marital_birth}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Mother's marital status at birth}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 21}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {birth_year}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {int}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Year of birth of individual}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 22}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {bio_mom_id}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {long}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Biological Mother's ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 23}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {bio_dad_id}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {long}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Biological Father's ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 24}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {a_mom_id}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {long}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Adoptive Mother's ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 25}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {a_dad_id}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {long}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Adoptive Father's ID}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 26}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {bio_md_ever_together}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Biological mother & father ever together}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 27}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {yr_first_observed}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {int}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Year first observed in sample}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 28}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {yr_last_observed}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {int}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Year last observed in sample}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 29}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {hhr_prev}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {strL}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Household Roster ID in previous year}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 30}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {ages_prev}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {str224}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Ages of all individuals in FU in previous year}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 31}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {child_came}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {ID's of children who came into FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 32}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {child_left}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {byte}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {ID's of children who left FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 33}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {head_ed_cat}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {str13}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {0}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Education of Reference Person}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 34}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {no_adults}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number of Adults in Family Unit}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 35}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {family_weight}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Family Weight}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 36}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {family_size}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Family Size}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 37}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {no_in}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number of Adults entered in FU from V5753}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 38}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {no_out}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Number of Adults left FU from V5713}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 39}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {who_in}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Who came into FU from V5712 HEAD}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 40}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {who_out}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Who left FU from V5714, HEAD}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 41}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {rent}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Rent}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 42}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {homevalue}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Home Value}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 43}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {own_rent}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Own or Rent}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 44}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {head_mar}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Marital Status of Head}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 45}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {age_head}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Age of Head}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 46}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {sex_head}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Sex of Head}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 47}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {region}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Region of Residence}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 48}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {state}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {State of Residence}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 49}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {fu_change}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Change in FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 50}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {adult_change}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Change in Adults in FU}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 51}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {head_rel}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Relationship to H/RP}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 52}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {indiv_weight}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Individual Weight}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 53}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {stopped_ed}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Highest Grade Stopped Education}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 54}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {school_completed}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Years of School Completed}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 55}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {never_adult}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {}\cell
+\row}
+{\trowd\trgaph108\trleft-108
+\cellx1100
+\fs20 \pard\intbl \qr { 56}\cell
+\cellx3500
+\fs20 \pard\intbl \ql {FU_income_w}\cell
+\cellx4350
+\fs20 \pard\intbl \ql {float}\cell
+\cellx5450
+\fs20 \pard\intbl \qr {1}\cell
+\cellx6410
+\fs20 \pard\intbl \ql {}\cell
+\cellx8910
+\fs20 \pard\intbl \ql {Family Unit Income in year-1}\cell
+\row}
+
+
+\writepositionforappend
+{\trowd\trgaph108\trleft-108
+\clbrdrt\brdrw15\brdrs\cellx8910 \cell
+\row}}}

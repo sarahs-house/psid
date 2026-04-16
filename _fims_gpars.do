@@ -1,12 +1,14 @@
 ****************************
 * Sarah Sullivan 
-* Last Updated: December 13, 2025
-* 00_fims_gpars.do
+* Last Updated: April 7, 2026
+* _fims_gpars.do
 ****************************
 
 ************************************
 
-    use  "${root}/fims_gpars_v1.dta", clear
+    use  "${root}/fims_gpars.dta", clear
+    * 87,079 observations, information on almost everyone in PSID, who are their parents!
+
 
     g ID = ER30001*1000 + ER30002
     rename ER30001 fam
@@ -62,4 +64,4 @@
     drop ER*
 
     * save
-    save "${root}/00_fims_gpars_v1.dta", replace
+    save "${root}/_fims_gpars_clean.dta", replace
