@@ -1,12 +1,13 @@
 ****************************
 * Sarah Sullivan 
-* Last Updated: April 7, 2026
+* Created: September 2025
+* Last Updated: May 18, 2026
 * _fims_gpars.do
 ****************************
 
 ************************************
 
-    use  "${root}/fims_gpars.dta", clear
+    use  "${output}/fims_gpars.dta", clear
     * 87,079 observations, information on almost everyone in PSID, who are their parents!
 
 
@@ -64,4 +65,7 @@
     drop ER*
 
     * save
+    * outputs a file for all PSID people (NOT JUST SAMPLE PEOPLE), for whom we have family information
+    * 87,079 people. People in the sample PLUS people with sample moms, dads, or grandparents who they themselves 
+    * may not be in the sample. 
     save "${root}/_fims_gpars_clean.dta", replace

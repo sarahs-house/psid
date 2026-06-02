@@ -1,20 +1,37 @@
 ****************************
 * Sarah Sullivan 
-* Last Updated: April 7, 2026
-* September 22, 2025
+* Last Updated: May 19, 2026
+* Created: September 22, 2025
 * _renaming.do
 ****************************
 
+/* 01. 1968 ID */ 
+    label var yr "Year"
+    local vars V3 V534 V1230 V1932 V2533 V3085 V3497 V3909 V4423 V5336 V5835 V6446 V7050 V7642 V8335 V8943 V10400 V11581 V12988 V14090 V15105 V16605 V18021 V19321 V20621 V22400 ER2005G ER5005G ER7005G ER10005G ER13019 ER17022 ER21009 ER25009 ER36009 ER42009 ER47309 ER53009 ER60009 ER66009 ER72009 ER78009 ER82009
+        foreach var of local vars {
+            capture confirm variable `var'
+            if !_rc {
+                rename `var' fam
+                label var fam "1968 fam ID: V534"
+                continue
+            }
+        }
 
-/* 00. Identity */
-        local identity_vars fam yr
-        label var fam "Family ID"
-        label var yr "Year"
-        g ID = fam*1000 + 1
-        label var ID "Head ID"
-        
+g v3_2 = fam
+
+/* 02. Family-year ID */ 
+    local vars v3_2 V442 V1102 V1802 V2402 V3002 V3402 V3802 V4302 V5202 V5702 V6302 V6902 V7502 V8202 V8802 V10002 V11102 V12502 V13702 V14802 V16302 V17702 V19002 V20302 V21602 ER2002 ER5002 ER7002 ER10002 ER13002 ER17002 ER21002 ER25002 ER36002 ER42002 ER47302 ER53002 ER60002 ER66002 ER72002 ER78002 ER82002
+        foreach var of local vars {
+            capture confirm variable `var'
+            if !_rc {
+                rename `var' fam_id_
+                label var fam_id_ "YEAR fam ID: V442"
+                continue
+            }
+        }
+
 /* 01. Who to head */
-    local vars V180	V800 V1489	V2201	V2827	V3248	V3670	V4149	V4700	V5618	V6165	V6764	V7397	V8049	V8673	V9359	V11006	V12354	V13607	V14654	V16128	V17525	V18856	V20156	V21462	V23318	ER2013	ER5012	ER7012	ER10015	ER13016	ER17019	ER24073	ER27879	ER40869	ER46697	ER52097	ER57901	ER65081	ER71164	ER77186	ER81522	ER85379        
+    local vars V180 V800 V1489 V2201 V2827 V3248 V3670 V4149 V4700 V5618 V6165 V6764 V7397 V8049 V8673 V9359 V11006 V12354 V13607 V14654 V16128 V17525 V18856 V20156 V21462 V23318 ER2013 ER5012 ER7012 ER10015 ER13016 ER17019 ER24073 ER27879 ER40869 ER46697 ER52097 ER57901 ER65081 ER71164 ER77186 ER81522 ER85379
         foreach var of local vars {
             capture confirm variable `var'
             if !_rc {
@@ -35,8 +52,9 @@
                 }
             }
 
+
 /* 04. Sex of Head */
-    local vars V119	V1010	V1240	V1943	V2543	V3096	V3509	V3922	V4437	V5351	V5851	V6463	V7068	V7659	V8353	V8962	V10420	V11607	V13012	V14115	V15131	V16632	V18050	V19350	V20652	V22407	ER2008	ER5007	ER7007	ER10010	ER13011	ER17014	ER21018	ER25018	ER36018	ER42018	ER47318	ER53018	ER60018	ER66018	ER72018	ER78018	ER82019
+    local vars V119 V1010 V1240 V1943 V2543 V3096 V3509 V3922 V4437 V5351 V5851 V6463 V7068 V7659 V8353 V8962 V10420 V11607 V13012 V14115 V15131 V16632 V18050 V19350 V20652 V22407 ER2008 ER5007 ER7007 ER10010 ER13011 ER17014 ER21018 ER25018 ER36018 ER42018 ER47318 ER53018 ER60018 ER66018 ER72018 ER78018 ER82019
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
@@ -45,7 +63,7 @@
                     continue
                 }
             }
-
+/*
 /* 05. Age of Spouse */
     local vars V118 V1011 V1241 V1944 V2544 V3097 V3510 V3923 V4438 V5352 V5852 V6464 V7069 V7660 V8354 V8963 V10421 V11608 V13013 V14116 V15132 V16633 V18051 V19351 V20653 V22408 ER2009 ER5008 ER7008 ER10011 ER13012 ER17015 ER21019 ER25019 ER36019 ER42019 ER47319 ER53019 ER60019 ER66019 ER72019 ER78019 ER82020
             foreach var of local vars {
@@ -56,9 +74,9 @@
                     continue
                 }
             }
-
+*/
 /* 06. Race of Head */
-        local vars V181	V801	V1490	V2202	V2828	V3300	V3720	V4204	V5096	V5662	V6209	V6802	V7447	V8099	V8723	V9408	V11055	V11938	V13565	V14612	V16086	V17483	V18814	V20114	V21420	V23276	ER3944	ER6814	ER9060	ER11848	ER15928	ER19989	ER23426	ER27393	ER40565	ER46543	ER51904	ER57659	ER64810	ER70882	ER76897	ER81144	ER85121
+        local vars V181 V801 V1490 V2202 V2828 V3300 V3720 V4204 V5096 V5662 V6209 V6802 V7447 V8099 V8723 V9408 V11055 V11938 V13565 V14612 V16086 V17483 V18814 V20114 V21420 V23276 ER3944 ER6814 ER9060 ER11848 ER15928 ER19989 ER23426 ER27393 ER40565 ER46543 ER51904 ER57659 ER64810 ER70882 ER76897 ER81144 ER85121
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
@@ -69,7 +87,7 @@
             }
 
 /* 07. Education of Head - Baskets */
-        local vars V313	V794	V1485	V2197	V2823	V3241	V3663	V4198	V5074	V5647	V6194	V6787	V7433	V8085	V8709	V9395	V11042	V12400	V13640	V14687	V16161	V17545	V18898																				
+        local vars V313 V794 V1485 V2197 V2823 V3241 V3663 V4198 V5074 V5647 V6194 V6787 V7433 V8085 V8709 V9395 V11042 V12400 V13640 V14687 V16161 V17545 V18898
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
@@ -78,7 +96,7 @@
                     continue
                 }
             }
-
+/*
 /* 08. Education of Wife - Baskets */
         local vars V246	V2687	V3216	V3638	V4199	V5075	V5648	V6195	V6788	V7434	V8086	V8710	V9396	V11043	V12401	V13641	V14688	V16162	V17546	V18899															
             foreach var of local vars {
@@ -89,14 +107,14 @@
                     continue
                 }
             }
-/*
+*/
 /* 09. State */
         local vars V93	V537	V1103	V1803	V2403	V3003	V3403	V3803	V4303	V5203 V5703 V6303	V6903	V7503	V8203	V8803	V10003	V11103	V12503	V13703	V14803	V16303	V17703	V19003	V20303	V21603	ER4156	ER6996	ER9247	ER12221	ER13004	ER17004	ER21003	ER25003	ER36003	ER42003	ER47303	ER53003	ER60003	ER66003	ER72003	ER78003	ER82003
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5703
-                    label var V5703 "State"
+                    rename `var' state
+                    label var state "State: V5703"
                     continue
                 }
             }
@@ -106,20 +124,20 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6180
-                    label var V6180 "Region"
+                    rename `var' region
+                    label var region "Region: V6180"
                     continue
                 }
             }
-
+/*
         
 /* 11. Head Moved from Home Region */
         local vars V363	V878	V1576	V2288	V2915	V3283	V3703	V4182	V5058	V5637	V6184	V6777	V7423	V8075	V8699	V9385	V11032	V12386	V13636	V14683	V16157	V17543	V18894	V20194	V21500	V23332	ER4157D	ER6997D	ER9248D	ER12221D	ER16431B	ER20377B	ER24147	ER28046	ER41036	ER46978	ER52402	ER58220	ER65456	ER71535	ER77596	ER81923	ER85777
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6184
-                    label var V6184 "Head: Moved from home region"
+                    rename `var' head_moved_from_home
+                    label var head_moved_from_home "Head: Moved from home region V6184"
                     continue
                 }
             }
@@ -130,12 +148,12 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6219
-                    label var V6219 "Head Change in Mar Status from Last Yr"
+                    rename `var' head_mar_stat_change
+                    label var head_mar_stat_change "Head Change in Mar Status from Last Yr: V6219"
                     continue
                 }
             }
-*/
+
 /* 13. Family Weight */
         local vars V439	V1014	V1609	V2321	V2968	V3301	V3721	V4224	V5099	V5665	V6212	V6805	V7451	V8103	V8727	V9433	V11079	V12446	V13687	V14737	V16208	V17612	V18943	V20243	V21547																		
             foreach var of local vars {
@@ -203,9 +221,9 @@
                     continue
                 }
             }       
-
+*/
 /* 19. FU: new head? */
-        local vars V791	V1461	V2165	V2791	V3217	V3639	V4114	V4658	V5578	V6127	V6724	V7357	V8009	V8633	V9319	V10966	V11906	V13533	V14580	V16054	V17451	V18782	V20082	V21388	V23245	ER3917	ER6787	ER9033	ER11812	ER15890	ER19951	ER23388	ER27352	ER40527	ER46504	ER51865	ER57618	ER64769	ER70841	ER76856	ER81103	ER85080
+        local vars V791 V1461 V2165 V2791 V3217 V3639 V4114 V4658 V5578 V6127 V6724 V7357 V8009 V8633 V9319 V10966 V11906 V13533 V14580 V16054 V17451 V18782 V20082 V21388 V23245 ER3917 ER6787 ER9033 ER11812 ER15890 ER19951 ER23388 ER27352 ER40527 ER46504 ER51865 ER57618 ER64769 ER70841 ER76856 ER81103 ER85080
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
@@ -221,12 +239,12 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5854
-                    label var V5854 "Age of youngest kid in FU"
+                    rename `var' age_youngest_kid
+                    label var age_youngest_kid "Age of youngest kid in FU V5854"
                     continue
                 }
             }       
-*/
+
 /* 21. Change in Fam Composition */
         local vars V542	V1109	V1809	V2410	V3010	V3410	V3810	V4310	V5210	V5710	V6310	V6910	V7510	V8210	V8810	V10010	V11112	V12510	V13710	V14810	V16310	V17710	V19010	V20310	V21608	ER2005A	ER5004A	ER7004A	ER10004A	ER13008A	ER17007	ER21007	ER25007	ER36007	ER42007	ER47307	ER53007	ER60007	ER66007	ER72007	ER78007	ER82007
             foreach var of local vars {
@@ -282,14 +300,14 @@
                 }
             }    
 
-/*
+
 /* 26. Family Size  */
         local vars V493	V1167	V1868	V2468	V3017	V3437	V3837	V4346	V5254	V5755	V6361	V6959	V7551	V8249	V8851	V10222	V11364	V12763	V13867	V14889	V16389	V17798	V19098	V20398																		
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5755
-                    label var V5755 "Family Size "
+                    rename `var' family_size
+                    label var family_size "Family Size: V5755"
                     continue
                 }
             }    
@@ -307,7 +325,7 @@
             }    
 */
 /* 28. Head Marital Status: married, sing, wid, div, sep*/
-        local vars V5502	V6034	V6659	V7261	V7952	V8603	V9276	V10426	V11612	V13017	V14120	V15136	V16637	V18055	V19355	V20657	V22412	ER2014	ER5013	ER7013	ER10016	ER13021	ER17024	ER21023	ER25023	ER36023	ER42023	ER47323	ER53023	ER60024	ER66024	ER72024	ER78025	ER82026
+        local vars V5502 V6034 V6659 V7261 V7952 V8603 V9276 V10426 V11612 V13017 V14120 V15136 V16637 V18055 V19355 V20657 V22412 ER2014 ER5013 ER7013 ER10016 ER13021 ER17024 ER21023 ER25023 ER36023 ER42023 ER47323 ER53023 ER60024 ER66024 ER72024 ER78025 ER82026
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
@@ -316,15 +334,14 @@
                     continue
                 }
             }    
-*/
 /*
 /* 29. Head Ever Married*/
         local vars V5503	V6035	V6660	V7262	V7953	V8604	V9277	V10427
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6035
-                    label var V6035 "Head Ever Married"
+                    rename `var' head_ever_married
+                    label var head_ever_married "Head Ever Married: V6035"
                     continue
                 }
             }    
@@ -334,8 +351,8 @@
                 foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6036
-                    label var V6036 "Head: Outcome of last marriage"
+                    rename `var' h_last_marr_outcome
+                    label var h_last_marr_outcome "Head: Outcome of last marriage V6036"
                     continue
                 }
             }    
@@ -345,24 +362,24 @@
         label var V6197 "HEAD MARITAL STATUS COMPARABLE TO 1968-1976 (MARRIED AND COHAB TOGETHER)" */
 
 
-/* 32. Total FU Income 1977: taxes and transfers, H, W, OFUM*/
+/* 32. what is this --> why 1977? --> Total FU Income 1977: taxes and transfers, H, W, OFUM*/
         local vars V81	V529	V1514	V2226	V2852	V3256	V3676	V4154	V5029	V5626	V6173	V6766	V7412	V8065	V8689	V9375	V11022	V12371	V13623	V14670	V16144	V17533	V18875	V20175	V21481	V23322	ER4153	ER6993	ER9244	ER12079	ER16462	ER20456	ER24099	ER28037	ER41027	ER46935	ER52343	ER58152	ER65349	ER71426	ER77448	ER81775	ER85629
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6173
-                    label var V6173 "Total FU Income 1977: taxes and transfers, H, W, OFUM"
+                    rename `var' fu_income
+                    label var fu_income "Total FU Income 1977: taxes and transfers, H, W, OFUM"
                     continue
                 }
             }    
-
+*/
 /* 33. OWN VS. RENT*/
         local vars V103	V593	V1264	V1967	V2566	V3108	V3522	V3939	V4450	V5364	V5864	V6479	V7084	V7675	V8364	V8974	V10437	V11618	V13023	V14126	V15140	V16641	V18072	V19372	V20672	V22427	ER2032	ER5031	ER7031	ER10035	ER13040	ER17043	ER21042	ER25028	ER36028	ER42029	ER47329	ER53029	ER60030	ER66030	ER72030	ER78031	ER82032
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5864
-                    label var V5864 "OWN VS. RENT"
+                    rename `var' own_rent
+                    label var own_rent "OWN VS. RENT: V5864"
                     continue
                 }
             }    
@@ -372,8 +389,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5717
-                    label var V5717 "Home Value"
+                    rename `var' home_value
+                    label var home_value "Home Value V5717"
                     continue
                 }
             }    
@@ -383,8 +400,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5721
-                    label var V5721 "Annual Mortgage"
+                    rename `var' mortgage
+                    label var mortgage "Annual Mortgage: V5721"
                     continue
                 }
             }    
@@ -394,8 +411,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5723
-                    label var V5723 "Annual Rent"
+                    rename `var' rent
+                    label var rent "Annual Rent: V5723"
                     continue
                 }
             } 
@@ -407,13 +424,13 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5727
-                    label var V5727 "Pub Housing"
+                    rename `var' pub_housing
+                    label var pub_housing "Pub Housing V5727"
                     continue
                 }
             }
-
-/* 38. FU Received Welfare Y/N 
+/*
+/* 38. drop --> ? --> FU Received Welfare Y/N 
         local vars V6078	V6682
             foreach var of local vars {
                 capture confirm variable `var'
@@ -430,13 +447,13 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V5872
-                    label var V5872 "Head Employment Status"
+                    rename `var' head_employment
+                    label var head_employment "Head Employment Status: V5872"
                     continue
                 }
             }    
 
-/* 40. Head occupation + 
+/* 40. OCCUPATION? Head occupation + 
         local vars V5873_A	V6497_A	V7100_A
             foreach var of local vars {
                 capture confirm variable `var'
@@ -447,7 +464,7 @@
                 }
             } */
 
-/* 41. Wife occupation + 1977 
+/* 41. OCCUPATION? Wife occupation + 1977 
         local vars V6039_A	V6596_A	V7198_A
             foreach var of local vars {
                 capture confirm variable `var'
@@ -457,14 +474,14 @@
                     continue
                 }
             }  */
-
+*/
 /* 42. Head: Years of school*/
-        local vars V4093	V4684	V5608	V6157	V6754	V7387	V8039	V8663	V9349	V10996 V20198	V21504	V23333	ER4158	ER6998	ER9249	ER12222	ER16516	ER20457	ER24148	ER28047	ER41037	ER46981	ER52405	ER58223	ER65459	ER71538	ER77599	ER81926	ER85780
+        local vars V4093 V4684 V5608 V6157 V6754 V7387 V8039 V8663 V9349 V10996 V20198 V21504 V23333 ER4158 ER6998 ER9249 ER12222 ER16516 ER20457 ER24148 ER28047 ER41037 ER46981 ER52405 ER58223 ER65459 ER71538 ER77599 ER81926 ER85780
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6157
-                    label var V6157 "Head: Years of school
+                    rename `var' head_yrs_school
+                    label var head_yrs_school "Head: Years of school V6157"
                     continue
                 }
             }
@@ -474,20 +491,20 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6116
-                    label var V6116 "Wife: Years of school
+                    rename `var' wife_yrs_school
+                    label var wife_yrs_school "Wife: Years of school V6116"
                     continue
                 }
             }
 
-
+/*
 /* 44. Head: parents poor, avg, well off? */
         local vars V317	V792	V1483	V2195	V2821	V3239	V3661	V4137	V4680	V5600	V6149	V6746	V7379	V8031	V8655	V9341	V10988	V11921	V13548	V14595	V16069	V17466	V18797	V20097	V21403	V23259	ER3923	ER6793	ER9039	ER11846	ER15926	ER19987	ER23424	ER27390	ER37728	ER46540	ER51901	ER57656	ER64807	ER70879	ER76894	ER81141	ER85118
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6149
-                    label var V6149 "Head: parents poor, avg, well off?"
+                    rename `var' head_parents_ses
+                    label var head_parents_ses "Head: parents poor, avg, well off? V6149"
                     continue
                 }
             }
@@ -498,8 +515,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6151
-                    label var V6151 "Head: Mom's education"
+                    rename `var' head_moms_ed
+                    label var head_moms_ed "Head: Mom's education V6151"
                     continue
                 }
             }  
@@ -509,8 +526,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6150
-                    label var V6150 "Head: Dad's education"
+                    rename `var' head_dad_ed
+                    label var head_dad_ed "Head: Dad's education V6150"
                     continue
                 }
             }  
@@ -520,8 +537,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6122
-                    label var V6122 "Wife: Mom's education"
+                    rename `var' wife_mom_ed
+                    label var wife_mom_ed "Wife: Mom's education V6122"
                     continue
                 }
             }  
@@ -531,8 +548,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6121
-                    label var V6121 "Wife: Dad's education"
+                    rename `var' wife_dad_ed
+                    label var wife_dad_ed "Wife: Dad's education V6121"
                     continue
                 }
             }  
@@ -542,8 +559,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6128
-                    label var V6128 "Head: State father grew up in"
+                    rename `var' head_state_dad_from
+                    label var head_state_dad_from "Head: State father grew up in V6128"
                     continue
                 }
             }  
@@ -553,8 +570,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6130
-                    label var V6130 "Head: State mother grew up in"
+                    rename `var' head_state_mom_from
+                    label var head_state_mom_from "Head: State mother grew up in V6130"
                     continue
                 }
             }
@@ -565,8 +582,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6132
-                    label var V6132 "Head: dad's main job while R grow up"
+                    rename `var' head_dads_jobs
+                    label var head_dads_job "Head: dad's main job while R grow up V6132"
                     continue
                 }
             }  
@@ -576,8 +593,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6140
-                    label var V6140 "Head: No. brothers/sisters"
+                    rename `var' head_no_sibs
+                    label var head_no_sibs "Head: No. brothers/sisters V6140"
                     continue
                 }
             }  
@@ -587,8 +604,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6142
-                    label var V6142 "Head: urban/rural growing up"
+                    rename `var' head_urban_rural_growing
+                    label var head_urban_rural_growing "Head: urban/rural growing up V6142"
                     continue
                 }
             }  
@@ -598,203 +615,8 @@
             foreach var of local vars {
                 capture confirm variable `var'
                 if !_rc {
-                    rename `var' V6143
-                    label var V6143 "Head: state where grew up"
+                    rename `var' head_state_grew_up
+                    label var head_state_grew_up "Head: state where grew up V6143"
                     continue
                 }
             }  
-
-/* 55. DROP */
-    local vars fam yr ID V6165 V5850 V5851 V5852 V6209 V6194 V6195 V5703 V6180 V6184 V6219 V6212 V5849 V6191 V5853 V6115 V6127 V5854 V5710 V5711 V5712 V5713 V5714 V5755 V5779 V6034 V6035 V6036 V6173 V5864 V5717 V5723 V5727 V5872 V6157 V6116 V6149 V6151 V6150 V6122 V6121 V6128 V6130 V6132 V6140 V6142 V6143
-    local keepvars
-
-    foreach var of local vars {
-        capture confirm variable `var'
-        if _rc == 0 {
-            local keepvars `keepvars' `var'
-        }
-    }
-
-    if "`keepvars'" != "" {
-        keep `keepvars'
-    }
-
-
-
-
-
-/*
-
-        label var V6142 "H"
-        label var V6143 "p"
-        label var V6181 "Head: region where grew up"
-
-
-        label var V6141 "Head: Older siblings Y/N"
-
-        label var V6182 "Head: Region father grew up"
-        label var V6183 "Head: Region mother grew up"
-
-        label var V6040 "Wife industry"
-        label var V5874 "Head industry"
-        label var V5874_A "Head industry +"
-        label var V5743 "Wife hours worked annual 1977"
-        label var V5751 "Wife hours unemployed 1977"
-        label var V5902 "Head became unemployed 1977"
-
-        rename V6732 V6135
-        label var V6135 "Head: Age of oldest child"
-        rename V6733 V6136
-        label var V6136 "Head: Age of 2nd oldest child"
-        rename V6734 V6137
-        label var V6137 "Head: Age of 3rd oldest child"
-        rename V6735 V6138
-        label var V6138 "Head: No. of children"
-        rename V6736 V6139
-        label var V6139 "Head: No. children before 25 y/o"
-
-        label var V6200 "Head: No. kids aged 1-2"
-        label var V6201 "Head: No. kids aged 3-5"
-        label var V6202 "Head: No. kids aged 6-13"
-        label var V6203 "Head: No. girls aged 14-17"
-        label var V6204 "Head: No. boys aged 14-17"
-        label var V6025 "Head: No. girls aged 18-20"
-        label var V6026 "Head: No. boys aged 18-20"
-        label var V6027 "Head: No. girls aged 21-29"
-        label var V6028 "Head: No. boys aged 21-29"
-*/
-
-/*
-    local SES_vars V6198 V5782 V5788 V5815 V5796 V5799 V5800 V5801 V5801 V5802 V5817 V5819 V5820 V5821 V5831 V5833 V6176 V5864 V5717  V5727 V6188 V6189 V6190 V6078 V5757 V5758 V5765 V5766 V5778 V5872 V5873 V5873_A V5874 V5874_A V5941 V5731 V5905 V5907 V5908 V5911 V5906 V5909 V5910 V5902 V5903 V5739 V5915 V5916  V6038 V6039 V6039_A V6040 V5743 V5751 V5816 V6157 V6158 V6159 V6163 V6164 V6116 V6117 V6118 V6119 V6120
-
-        * INCOME
-                label var V6198 "Income Decile 1977"
-                label var V6173 "Total FU Income 1977: taxes and transfers, H, W, OFUM"
-                label var V5782 "Head 1977 annual wage income"
-                label var V5788 "Wife 1977 annual wage income"
-                label var V5815 "Head + Wife 1977 transfer income amount"
-                label var V5796 "Head + Wife taxable income 1977"
-                label var V5799 "Head + Wife No dependents 1977"
-                label var V5800 "Head + Wife income taxes"
-                label var V5801 "Head + Wife marginal tax rates"
-                label var V5802 "Head + Wife ADC/AFDC Amount 1977" 
-                    *** CHECK ^
-                label var V5817 "Others Taxable income 1977"
-                label var V5819 "Others ASSET income 1977"
-                label var V5820 "Others income tax 1977"
-                label var V5821 "Others ADC/AFDC 1977"
-                label var V5831 "Others Transfer Income 1977"
-                label var V5833 "No. Other Income Receivers in FU (not H/W) 1977"
-                label var V6176 "Income to Needs Ratio 1977, adj for farmers"
-        * HOUSING
-            label var V5864 "OWN VS. RENT"
-            label var V5717 "Home Value"
-            label var V5721 "Annual Mortgage"
-            label var V5723 "Annual Rent"
-            label var V5727 "Pub Housing Rent Value -- Paid by govt"
-            /* HOUSEHOLD CHARACTERISTIC VARIABLES: V5862+
-            MOVES: V5866-V5867-V5868 */
-            label var V6188 "VALUE PER ROOM OF DU 1978"
-            label var V6189 "Extra rooms: actual - required"
-            label var V6190 "Density: # ppl per room"
-        * WELFARE
-            label var V6078 "FU Received Welfare Y/N"
-            label var V5757 "Weekly food need unadjusted for infl"
-            label var V5758 "Poverty Threshold 1978"
-            label var V5765 "No ppl received food stamps"
-            label var V5766 "Amount of food stamps last month"
-            label var V5778 "No of months with food stamps 1977"
-        * WORK
-            label var V5872 "Head employment status"
-            label var V5873 "Head occupation"
-            label var V5873_A "Head occupation +"
-                * ^ CHECK
-            label var V5874 "Head industry"
-            label var V5874_A "Head industry +"
-                * ^ CHECK
-            label var V5941 "Head Hours at first job"
-            label var V5731 "Head hours worked annual 1977"
-            label var V5905 "Head hours worked per week 1977"
-            label var V5907 "Head salaried/hourly/other"
-            label var V5908 "Head pay per hour if salaried"
-            label var V5911 "Head pay per hour not salaried"
-            label var V5906 "Head worked overtime in 1977 Y/N"
-                * if V5906 == TRUE
-                label var V5909 "Head whether paid OT"
-                label var V5910 "Head hourly OT pay actual"
-            label var V5902 "Head became unemployed 1977"
-            label var V5903 "Head weeks unemployed 1977"
-            label var V5739 "Head hours unemployed 1977" 
-            label var V5915 "Head second job Y/N 1977"
-            label var V5916 "Head second occupation"
-            label var V6038 "Wife worked Y/N 1977"
-            label var V6039 "Wife occupation 1977"
-            label var V6039_A "Wife occupation + 1977"
-            label var V6040 "Wife industry"
-            label var V5743 "Wife hours worked annual 1977"
-            label var V5751 "Wife hours unemployed 1977"
-            label var V5816 "Others hours worked annual 1977"
-
-        * EDUCATION
-            label var V6157 "Head: Years of school"
-            label var V6158 "Head: add'l school Y/N"
-            label var V6159 "Head: kind of add'l school"
-            label var V6163 "Head: bachelor degree Y/N"
-            label var V6164 "Head: adv degree Y/N"
-            label var V6116 "Wife: Years of school"
-            label var V6117 "Wife: add'l school Y/N"
-            label var V6118 "Wife: kind of add'l school"
-            label var V6119 "Wife: bachelor degree Y/N"
-            label var V6120 "Wife: adv degree Y/N"
-
-
-    local growing_up V6149 V6151 V6150 V6122 V6121 V6128 V6182 V6130 V6183 V6132 V6140 V6141 V6142 V6143 V6181
-        * SES  GROWING UP
-            label var V6149 "Head: parents poor, avg, well off?"
-        * PARENTAL EDUCATION 
-            label var V6151 "Head: Mom's education"
-            label var V6150 "Head: Dad's education"
-            label var V6122 "Wife: Mom's education"
-            label var V6121 "Wife: Dad's education"
-        * PARENTS' CHILDHOOD HOME
-            label var V6128 "Head: State father grew up"
-            label var V6182 "Head: Region father grew up"
-            label var V6130 "Head: State mother grew up"
-            label var V6183 "Head: Region mother grew up"
-        * PARENTAL OCCUPATION GROWING UP
-            label var V6132 "Head: dad's main job while R grow up"
-        * R'S FAMILY STRUCTURE GROWING UP
-            label var V6140 "Head: No. brothers/sisters"
-            label var V6141 "Head: Older siblings Y/N"
-        * R'S CHILDHOOD COMMUNITY/REGION
-            label var V6142 "Head: urban/rural growing up"
-            label var V6143 "Head: state where grew up"
-            label var V6181 "Head: region where grew up"
-
-
-    local social_capital_job V5929 V5930 V5932 V5933 V5934 V5935 V5936 V5937 V5938
-        label var V5929 "Head 1st Job: age"
-            * Same if unemployed? V5973 
-        label var V5930 "Head 1st Job: occupation"
-        label var V5932 "Head 1st Job: how found"
-        label var V5933 "Head 1st Job: any help?"
-        label var V5934 "Head 1st Job: who helped?"
-        label var V5935 "Head 1st Job: how helped?"
-        label var V5936 "Head 1st Job: helper at company"
-        label var V5937 "Head 1st Job: helper had say in hiring"
-        label var V5938 "Head 1st Job: how much helper say"
-            * Go back in and fill in social capital information for current job, 
-            * starting around V5941, if interested
-
-    local others V6003 V6133 V6134 V6147 V6148
-        label var V6003 "Head Year Retired"
-        label var V6133 "Q head's first job"
-        label var V6134 "Q change industries/ type of job?"
-        label var V6147 "Q MOVED FOR JOB" 
-        label var V6148 "Q NOT MOVED FOR JOB"
-
-
-
-    order `identity_vars' `demographic_vars' `family_structure_vars' `SES_vars' `growing_up' `past_IDs' `social_capital_job' `others'
-    keep `identity_vars' `demographic_vars' `family_structure_vars' `SES_vars' `growing_up' `past_IDs' `social_capital_job' `others'
-*/

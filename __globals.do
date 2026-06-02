@@ -13,8 +13,17 @@
 /* 02. 2023 data */
     global d_2023 "$root/ind2023er/ind2023er.dta"
 
-/* 03. 2023 output */
-    global out_2023 "$root/ind2023er"
-
 /* 04. fam comp */
 	global fam_comp "$root/198084-V2/famcomp6821.dta"
+
+/* 05. raw data */
+    global raw "$root/_raw"
+
+/* 06. output */
+    global output "$root/_output"
+
+/* 07. log */
+    global log "$root/_log"
+
+/* 08. do files */
+    global scripts "$root/_scripts"

@@ -1,13 +1,14 @@
 ****************************
 * Sarah Sullivan 
-* Last Updated: December 13, 2025
-* 00_fims_sib.do
+* Created: September 2025
+* Last Updated: May 18, 2026
+* _fims_sib.do
 ****************************
 
 ************************************
 
-    use  "${root}/fims_sib.dta", clear
-    * 38,324 have siblings
+    use  "${output}/fims_sib.dta", clear
+    * 38,324 sample members for whom we have sibling data
 
 
     g ID = ER30001*1000 + ER30002
@@ -26,7 +27,6 @@
 
     * drop PN and ID68 for siblings
     drop PN* ID68* ER*
-
 
     * save
     save "${root}/_fims_sib_clean.dta", replace
