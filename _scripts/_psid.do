@@ -375,6 +375,7 @@ if `part1' == 1{
         egen sample_family_B = max(sample_indiv_B), by(fam)
         label var sample_family_B "Binary: Family with at least one child in Sample B"
 
+/* PICK UP JUNE 3 */
 
     /* 12. Why each FIMS non-sample member is here */ 
         g fims_has_sample_parent = 1 if ID_aM != . | ID_bM != . | ID_aD != . | ID_bD != .
