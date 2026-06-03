@@ -24,7 +24,7 @@ g v3_2 = fam
         foreach var of local vars {
             capture confirm variable `var'
             if !_rc {
-                rename `var' fam_id_
+                cap rename `var' fam_id_
                 label var fam_id_ "YEAR fam ID: V442"
                 continue
             }
@@ -63,8 +63,8 @@ g v3_2 = fam
                     continue
                 }
             }
-/*
-/* 05. Age of Spouse */
+
+/* 05. Age of Spouse 
     local vars V118 V1011 V1241 V1944 V2544 V3097 V3510 V3923 V4438 V5352 V5852 V6464 V7069 V7660 V8354 V8963 V10421 V11608 V13013 V14116 V15132 V16633 V18051 V19351 V20653 V22408 ER2009 ER5008 ER7008 ER10011 ER13012 ER17015 ER21019 ER25019 ER36019 ER42019 ER47319 ER53019 ER60019 ER66019 ER72019 ER78019 ER82020
             foreach var of local vars {
                 capture confirm variable `var'
@@ -96,8 +96,8 @@ g v3_2 = fam
                     continue
                 }
             }
-/*
-/* 08. Education of Wife - Baskets */
+
+/* 08. Education of Wife - Baskets 
         local vars V246	V2687	V3216	V3638	V4199	V5075	V5648	V6195	V6788	V7434	V8086	V8710	V9396	V11043	V12401	V13641	V14688	V16162	V17546	V18899															
             foreach var of local vars {
                 capture confirm variable `var'
@@ -107,7 +107,7 @@ g v3_2 = fam
                     continue
                 }
             }
-*/
+
 /* 09. State */
         local vars V93	V537	V1103	V1803	V2403	V3003	V3403	V3803	V4303	V5203 V5703 V6303	V6903	V7503	V8203	V8803	V10003	V11103	V12503	V13703	V14803	V16303	V17703	V19003	V20303	V21603	ER4156	ER6996	ER9247	ER12221	ER13004	ER17004	ER21003	ER25003	ER36003	ER42003	ER47303	ER53003	ER60003	ER66003	ER72003	ER78003	ER82003
             foreach var of local vars {
@@ -129,9 +129,22 @@ g v3_2 = fam
                     continue
                 }
             }
-/*
-        
-/* 11. Head Moved from Home Region */
+*/
+/* 12. Date of interview */
+    local vars V99 V553 V1236 V1939 V2539 V3092 V3505 V3918 V4433 V5347 V5847 V6459 V7064 V7655 V8349 V8958 V10416 V11600 V13008 V14111 V15127 V16628 V18046 V19346 V20648 V22403 ER2005 ER5004 ER7004 ER10006	ER13007	ER17010	ER21013	ER25013	ER36013	ER42013	ER47313	ER53013	ER60013	ER66013	ER72013	ER78013	ER82013
+
+        foreach var of local vars {
+            capture confirm variable `var'
+            if !_rc {
+                rename `var' date_interview
+                label var date_interview "RECODE V99 Date of interview"
+                continue
+            }
+        }
+
+
+    
+/* 11. Head Moved from Home Region 
         local vars V363	V878	V1576	V2288	V2915	V3283	V3703	V4182	V5058	V5637	V6184	V6777	V7423	V8075	V8699	V9385	V11032	V12386	V13636	V14683	V16157	V17543	V18894	V20194	V21500	V23332	ER4157D	ER6997D	ER9248D	ER12221D	ER16431B	ER20377B	ER24147	ER28046	ER41036	ER46978	ER52402	ER58220	ER65456	ER71535	ER77596	ER81923	ER85777
             foreach var of local vars {
                 capture confirm variable `var'
@@ -198,7 +211,6 @@ g v3_2 = fam
                 }
             }       
 
-/*
 /* 17. Non-Head Adult in FU: 1978 ONLY */
         local vars V6109
             foreach var of local vars {
@@ -210,7 +222,6 @@ g v3_2 = fam
                 }
             }        
 
-*/
 /* 18. Head: New wife, old wife, no wife 1977?*/
         local vars V3215	V3637	V4107	V4694	V5566	V6115	V6712	V7345	V7997	V8621	V9307	V10954		V13484	V14531	V16005	V17402	V18733	V20033	V21339	V23196	ER3863	ER6733	ER8979	ER11731	ER15805	ER19866	ER23303	ER27263	ER40438	ER46410	ER51771	ER57508	ER64630	ER70703	ER76711	ER80976	ER84953
             foreach var of local vars {
@@ -232,8 +243,8 @@ g v3_2 = fam
                     continue
                 }
             }       
-/*
-/* 20. Age of youngest kid in FU */
+
+/* 20. Age of youngest kid in FU 
         local vars V120	V1013	V1243	V1946	V2546	V3099	V3512	V3925	V4440	V5354	V5854	V6466	V7071	V7662	V8356	V8965	V10423	V11610	V13015	V14118	V15134	V16635	V18053	V19353	V20655	V22410	ER2011	ER5010	ER7010	ER10013	ER13014	ER17017	ER21021	ER25021	ER36021	ER42021	ER47321	ER53021	ER60022	ER66022	ER72022	ER78022	ER82023
 
             foreach var of local vars {
@@ -334,8 +345,21 @@ g v3_2 = fam
                     continue
                 }
             }    
-/*
-/* 29. Head Ever Married*/
+
+
+/* 42. Head: Years of school */
+        local vars V4093 V4684 V5608 V6157 V6754 V7387 V8039 V8663 V9349 V10996 V20198 V21504 V23333 ER4158 ER6998 ER9249 ER12222 ER16516 ER20457 ER24148 ER28047 ER41037 ER46981 ER52405 ER58223 ER65459 ER71538 ER77599 ER81926 ER85780
+            foreach var of local vars {
+                capture confirm variable `var'
+                if !_rc {
+                    rename `var' head_yrs_school
+                    label var head_yrs_school "Head: Years of school V6157"
+                    continue
+                }
+            }
+
+
+/* 29. Head Ever Married
         local vars V5503	V6035	V6660	V7262	V7953	V8604	V9277	V10427
             foreach var of local vars {
                 capture confirm variable `var'
@@ -346,7 +370,7 @@ g v3_2 = fam
                 }
             }    
 
-/* 30. Head: Outcome of last marriage*/
+/* 30. Head: Outcome of last marriage */
         local vars V5504	V6036	V6661	V7263	V7954	V8605	V9278	V10428
                 foreach var of local vars {
                 capture confirm variable `var'
@@ -372,7 +396,7 @@ g v3_2 = fam
                     continue
                 }
             }    
-*/
+
 /* 33. OWN VS. RENT*/
         local vars V103	V593	V1264	V1967	V2566	V3108	V3522	V3939	V4450	V5364	V5864	V6479	V7084	V7675	V8364	V8974	V10437	V11618	V13023	V14126	V15140	V16641	V18072	V19372	V20672	V22427	ER2032	ER5031	ER7031	ER10035	ER13040	ER17043	ER21042	ER25028	ER36028	ER42029	ER47329	ER53029	ER60030	ER66030	ER72030	ER78031	ER82032
             foreach var of local vars {
@@ -418,7 +442,6 @@ g v3_2 = fam
             } 
 
 
-
 /* 37. Pub Housing Rent Value -- Paid by govt */
         local vars V12	V457	V1130	V1831	V2431	V3025	V3421	V3821	V4330	V5229	V5727	V6330	V6929	V7527	V8223	V8827	V10028	V11135	V12534	V13734			V17735	V19035	V20335	V21626
             foreach var of local vars {
@@ -429,7 +452,7 @@ g v3_2 = fam
                     continue
                 }
             }
-/*
+
 /* 38. drop --> ? --> FU Received Welfare Y/N 
         local vars V6078	V6682
             foreach var of local vars {
@@ -439,8 +462,7 @@ g v3_2 = fam
                     label var V6078 "FU Received Welfare Y/N"
                     continue
                 }
-            }    */
-
+            }    
 
 /* 39. Head employment status */
         local vars V196	V639	V1278	V1983	V2581	V3114	V3528	V3967	V4458	V5373	V5872	V6492	V7095	V7706	V8374	V9005	V10453	V11637	V13046	V14146	V15154	V16655	V18093	V19393	V20693	V22448	ER2068	ER5067	ER7163
@@ -453,7 +475,7 @@ g v3_2 = fam
                 }
             }    
 
-/* 40. OCCUPATION? Head occupation + 
+/* 40. OCCUPATION? Head occupation + */
         local vars V5873_A	V6497_A	V7100_A
             foreach var of local vars {
                 capture confirm variable `var'
@@ -462,9 +484,9 @@ g v3_2 = fam
                     label var V5873_A "Head occupation +"
                     continue
                 }
-            } */
+            } 
 
-/* 41. OCCUPATION? Wife occupation + 1977 
+/* 41. OCCUPATION? Wife occupation + 1977 */
         local vars V6039_A	V6596_A	V7198_A
             foreach var of local vars {
                 capture confirm variable `var'
@@ -473,18 +495,11 @@ g v3_2 = fam
                     label var V6039_A "Wife occupation + 1977"
                     continue
                 }
-            }  */
+            }  
+
 */
-/* 42. Head: Years of school*/
-        local vars V4093 V4684 V5608 V6157 V6754 V7387 V8039 V8663 V9349 V10996 V20198 V21504 V23333 ER4158 ER6998 ER9249 ER12222 ER16516 ER20457 ER24148 ER28047 ER41037 ER46981 ER52405 ER58223 ER65459 ER71538 ER77599 ER81926 ER85780
-            foreach var of local vars {
-                capture confirm variable `var'
-                if !_rc {
-                    rename `var' head_yrs_school
-                    label var head_yrs_school "Head: Years of school V6157"
-                    continue
-                }
-            }
+
+
 
 /* 43. Wife: Years of school */
         local vars V4102	V4695	V5567	V6116	V6713	V7346	V7998	V8622	V9308	V10955 V20199	V21505	V23334	ER4159	ER6999	ER9250	ER12223	ER16517	ER20458	ER24149	ER28048	ER41038	ER46982	ER52406	ER58224	ER65460	ER71539	ER77600	ER81927	ER85781
@@ -497,7 +512,6 @@ g v3_2 = fam
                 }
             }
 
-/*
 /* 44. Head: parents poor, avg, well off? */
         local vars V317	V792	V1483	V2195	V2821	V3239	V3661	V4137	V4680	V5600	V6149	V6746	V7379	V8031	V8655	V9341	V10988	V11921	V13548	V14595	V16069	V17466	V18797	V20097	V21403	V23259	ER3923	ER6793	ER9039	ER11846	ER15926	ER19987	ER23424	ER27390	ER37728	ER46540	ER51901	ER57656	ER64807	ER70879	ER76894	ER81141	ER85118
             foreach var of local vars {

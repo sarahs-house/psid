@@ -2,13 +2,40 @@
 * Sarah Sullivan 
 * OG Created: December 27, 2025
 * Version Created: March 6, 2026
-* Last Updated: June 1, 2026
+* Last Updated: June 2, 2026
 ****************************
 /* 
 This do file merges together data from each survey wave to create a panel data set of the heads of every household in the PSID between 1968-2023
 and inputs individual level data for all individuals ever in the PSID between 1968-2023.
 */
 ************************************
+
+/*
+
+AGENDA THURSDAY, JUNE 4, 2025: 
+
+- THE ANALYTICS
+
+- AGE AT TIME OF INTERVIEW VARIABLE 
+    - WHAT I KNOW
+    - WHAT I DON'T KNOW
+    - WHAT I THINK IT MIGHT MEAN 
+    - WHAT I'M WORKING ON 
+
+- FUNNY PEOPLE IN THE SAMPLE
+    - I ADDRESSED THEM
+    - WHAT DO WE THINK OF THE DECISION RULE? 
+
+- DEFINING SAMPLE B
+    - WHAT DO YOU THINK ABOUT MY DECISION RULE FOR SAMPLE B?
+
+- INCORPORATING RELATIONSHIP 
+    - FIMS
+    - HOUSEHOLD ROSTERS AND TRANSFERS -- SELF 
+    - 1985 ONWARD VS. PRE 1985
+*/
+
+
 
 /* 00. Program Set Up */
     clear all
@@ -63,7 +90,13 @@ if `part1' == 1{
     /* 02. Define needed variables for analysis */
         local keep fam ID person_number ER30003 ER30004 ER30006 ER30007 ER30008 ER30015 ER30017 ER30018 ER30019 ER30020 ER30021 ER30022 ER30023 ER30025 ER30026 ER30027 ER30031 ER30036 ER30037 ER30038 ER30039 ER30040 ER30041 ER30042 ER30043 ER30044 ER30045 ER30046 ER30048 ER30049 ER30050 ER30055 ER30060 ER30061 ER30062 ER30063 ER30064 ER30065 ER30066 ER30067 ER30068 ER30069 ER30070 ER30072 ER30073 ER30074 ER30079 ER30084 ER30085 ER30086 ER30087 ER30088 ER30089 ER30090 ER30091 ER30092 ER30093 ER30094 ER30096 ER30097 ER30098 ER30104 ER30109 ER30111 ER30112 ER30113 ER30114 ER30115 ER30116 ER30117 ER30118 ER30119 ER30120 ER30122 ER30123 ER30124 ER30128 ER30132 ER30133 ER30134 ER30135 ER30136 ER30137 ER30138 ER30139 ER30140 ER30141 ER30143 ER30144 ER30145 ER30149 ER30154 ER30155 ER30156 ER30157 ER30158 ER30159 ER30160 ER30161 ER30162 ER30163 ER30165 ER30166 ER30167 ER30170 ER30182 ER30183 ER30184 ER30185 ER30186 ER30187 ER30188 ER30189 ER30190 ER30191 ER30193 ER30194 ER30195 ER30200 ER30211 ER30212 ER30213 ER30214 ER30215 ER30216 ER30217 ER30218 ER30219 ER30220 ER30222 ER30223 ER30224 ER30229 ER30240 ER30241 ER30242 ER30243 ER30244 ER30245 ER30246 ER30247 ER30248 ER30249 ER30251 ER30252 ER30253 ER30258 ER30262 ER30266 ER30277 ER30278 ER30279 ER30280 ER30281 ER30282 ER30283 ER30284 ER30285 ER30286 ER30288 ER30289 ER30290 ER30292 ER30307 ER30308 ER30309 ER30310 ER30311 ER30312 ER30313 ER30314 ER30315 ER30316 ER30318 ER30319 ER30320 ER30322 ER30337 ER30338 ER30339 ER30340 ER30341 ER30342 ER30343 ER30344 ER30345 ER30346 ER30348 ER30349 ER30350 ER30352 ER30356 ER30368 ER30369 ER30370 ER30371 ER30372 ER30373 ER30374 ER30375 ER30376 ER30378 ER30379 ER30380 ER30381 ER30394 ER30395 ER30396 ER30397 ER30398 ER30399 ER30400 ER30401 ER30402 ER30404 ER30406 ER30407 ER30408 ER30410 ER30423 ER30424 ER30426 ER30427 ER30428 ER30429 ER30430 ER30431 ER30432 ER30434 ER30436 ER30437 ER30438 ER30440 ER30443 ER30450 ER30457 ER30458 ER30460 ER30461 ER30462 ER30463 ER30464 ER30465 ER30466 ER30468 ER30470 ER30471 ER30472 ER30485 ER30492 ER30493 ER30495 ER30496 ER30497 ER30498 ER30499 ER30500 ER30501 ER30503 ER30505 ER30506 ER30507 ER30529 ER30530 ER30532 ER30533 ER30534 ER30535 ER30536 ER30537 ER30538 ER30540 ER30542 ER30543 ER30544 ER30564 ER30565 ER30567 ER30568 ER30569 ER30570 ER30571 ER30572 ER30573 ER30575 ER30576 ER30577 ER30578 ER30579 ER30600 ER30601 ER30603 ER30604 ER30605 ER30606 ER30607 ER30608 ER30609 ER30611 ER30612 ER30613 ER30614 ER30615 ER30620 ER30636 ER30637 ER30639 ER30640 ER30641 ER30642 ER30643 ER30644 ER30645 ER30647 ER30648 ER30649 ER30650 ER30651 ER30657 ER30673 ER30678 ER30679 ER30681 ER30682 ER30684 ER30685 ER30686 ER30687 ER30688 ER30689 ER30690 ER30691 ER30692 ER30694 ER30695 ER30696 ER30697 ER30698 ER30703 ER30721 ER30722 ER30724 ER30728 ER30729 ER30730 ER30731 ER30732 ER30733 ER30734 ER30735 ER30736 ER30738 ER30739 ER30740 ER30741 ER30742 ER30796 ER30797 ER30799 ER30801 ER30802 ER30803 ER30804 ER30805 ER30806 ER30807 ER30808 ER30809 ER30811 ER30812 ER30813 ER30814 ER30815 ER30857 ER30858 ER30859 ER30860 ER30862 ER30863 ER30864 ER30865 ER30866 ER31987 ER31988 ER31989 ER31990 ER31991 ER31992 ER31993 ER31994 ER31995 ER31996 ER31997 ER32000 ER32001 ER32002 ER32003 ER32004 ER32005 ER32006 ER32007 ER32008 ER32009 ER32010 ER32011 ER32012 ER32013 ER32014 ER32015 ER32016 ER32017 ER32018 ER32019 ER32020 ER32021 ER32022 ER32024 ER32026 ER32028 ER32030 ER32032 ER32033 ER32049 ER32050 ER32051 ER32052 ER32053 ER32054 ER33101 ER33102 ER33103 ER33104 ER33106 ER33107 ER33108 ER33109 ER33110 ER33115 ER33119 ER33120 ER33121 ER33123 ER33124 ER33125 ER33126 ER33127 ER33150 ER33201 ER33202 ER33203 ER33204 ER33206 ER33207 ER33208 ER33209 ER33210 ER33219 ER33275 ER33276 ER33277 ER33279 ER33280 ER33281 ER33282 ER33283 ER33299B ER33301 ER33302 ER33303 ER33304 ER33306 ER33307 ER33308 ER33309 ER33310 ER33318 ER33320 ER33321 ER33322 ER33323 ER33324 ER33325 ER33401 ER33402 ER33403 ER33404 ER33406 ER33407 ER33408 ER33409 ER33410 ER33418 ER33419 ER33420 ER33421 ER33422 ER33423 ER33424 ER33425 ER33426 ER33427 ER33428 ER33429 ER33430 ER33432 ER33433 ER33434 ER33435 ER33436 ER33437 ER33438 ER33501 ER33502 ER33503 ER33504 ER33506 ER33507 ER33508 ER33509 ER33510 ER33511 ER33524 ER33525 ER33526 ER33527 ER33528 ER33529 ER33530 ER33531 ER33532 ER33540 ER33541 ER33542 ER33543 ER33544 ER33545 ER33546 ER33547 ER33601 ER33602 ER33603 ER33604 ER33606 ER33607 ER33608 ER33609 ER33610 ER33611 ER33631 ER33632 ER33633 ER33634 ER33635 ER33636 ER33637 ER33638 ER33639 ER33701 ER33702 ER33703 ER33704 ER33706 ER33707 ER33708 ER33709 ER33710 ER33711 ER33734 ER33735 ER33736 ER33737 ER33738 ER33739 ER33740 ER33741 ER33742 ER33801 ER33802 ER33803 ER33804 ER33806 ER33807 ER33808 ER33809 ER33810 ER33811 ER33840 ER33841 ER33842 ER33843 ER33846 ER33847 ER33848 ER33849 ER33901 ER33902 ER33903 ER33904 ER33906 ER33907 ER33908 ER33909 ER33910 ER33911 ER33940 ER33941 ER33942 ER33943 ER33948 ER33949 ER33950 ER33951 ER34001 ER34002 ER34003 ER34004 ER34006 ER34007 ER34008 ER34009 ER34010 ER34011 ER34034 ER34035 ER34036 ER34037 ER34043 ER34044 ER34045 ER34046 ER34101 ER34102 ER34103 ER34104 ER34106 ER34107 ER34108 ER34109 ER34110 ER34111 ER34146 ER34147 ER34148 ER34149 ER34152 ER34153 ER34154 ER34155 ER34201 ER34202 ER34203 ER34204 ER34206 ER34207 ER34208 ER34209 ER34210 ER34211 ER34253 ER34254 ER34255 ER34256 ER34266 ER34267 ER34268 ER34269 ER34301 ER34302 ER34303 ER34305 ER34307 ER34308 ER34309 ER34310 ER34311 ER34312 ER34403 ER34404 ER34405 ER34406 ER34407 ER34408 ER34409 ER34410 ER34411 ER34412 ER34413 ER34414 ER34501 ER34502 ER34503 ER34504 ER34506 ER34507 ER34508 ER34509 ER34510 ER34511 ER34642 ER34643 ER34644 ER34645 ER34646 ER34647 ER34648 ER34649 ER34650 ER34651 ER34701 ER34702 ER34703 ER34704 ER34706 ER34707 ER34708 ER34709 ER34710 ER34711 ER34851 ER34852 ER34853 ER34854 ER34855 ER34856 ER34857 ER34858 ER34859 ER34860 ER34861 ER34862 ER34863 ER34864 ER34901 ER34902 ER34903 ER34904 ER34906 ER34907 ER34908 ER34909 ER34910 ER34911 ER35052 ER35053 ER35054 ER35055 ER35062 ER35063 ER35064 ER35065 ER35101 ER35102 ER35103 ER35104 ER35106 ER35107 ER35108 ER35109 ER35110 ER35111 ER35252 ER35253 ER35254 ER35255 ER35262 ER35263 ER35264 ER35265 ER30010 ER30052 ER30076 ER30100 ER30126 ER30147 ER30169 ER30197 ER30226 ER30255 ER30296 ER30326 ER30356 ER30384 ER30413 ER30443 ER30478 ER30513 ER30549 ER30584 ER30620 ER30657 ER30703 ER30748 ER30820 ER33115 ER33215 ER33315 ER33415 ER33516 ER33616 ER33716 ER33817 ER33917 ER34020 ER34119 ER34230 ER34349 ER34548 ER34752 ER34952 ER35152 ER30403 ER30433 ER30467 ER30502 ER30539 ER30574 ER30610 ER30646 ER30693 ER30737 ER30810 ER33105 ER33205 ER33305 ER33405 ER33505 ER33605 ER33705 ER33805 ER33905 ER34005 ER34105 ER34205 ER34306 ER34505 ER34705 ER34905 ER35105
 
-        keep `keep'
+        local age_reported ER30004 ER30023 ER30046 ER30070 ER30094 ER30120 ER30141 ER30163 ER30191 ER30220 ER30249 ER30286 ER30316 ER30346 ER30376 ER30402 ER30432 ER30466 ER30501 ER30538 ER30573 ER30609 ER30645 ER30692 ER30736 ER30809 ER33104 ER33204 ER33304 ER33404 ER33504 ER33604 ER33704 ER33804 ER33904 ER34004 ER34104 ER34204 ER34305 ER34504 ER34704 ER34904 ER35104
+        local age_bday ER30425 ER30459 ER30494 ER30531 ER30566 ER30602 ER30638 ER30680 ER30723 ER30798
+        local month_born ER30403 ER30433 ER30467 ER30502 ER30539 ER30574 ER30610 ER30646 ER30693 ER30737 ER30810 ER33105 ER33205 ER33305 ER33405 ER33505 ER33605 ER33705 ER33805 ER33905 ER34005 ER34105 ER34205 ER34306 ER34505 ER34705 ER34905 ER35105
+        local year_born ER30404 ER30434 ER30468 ER30503 ER30540 ER30575 ER30611 ER30647 ER30694 ER30738 ER30811 ER33106 ER33206 ER33306 ER33406 ER33506 ER33606 ER33706 ER33806 ER33906 ER34006 ER34106 ER34206 ER34307 ER34506 ER34706 ER34906 ER35106
+
+    
+        keep `keep' `age_reported' `age_bday' `month_born' `year_born'
 
 
     /* 03. Identify family sample: original PSID vs. immigrant-latino */
@@ -103,31 +136,34 @@ if `part1' == 1{
             replace in_`yr' = 1 if `var' == 0
             local i = `i' + 2
         }
+    
+    /* 05. AGE --> 
+        As of June 2, 2026, I don't have birth date 
+        variables. Rather than do a shoddy job and use birth month 
+        + interview date, I'm gonna wait to get true age variables from
+        restricted data. After which, I will develop an age variable that is
+        age at time of interview, if ever observed after 1982. For people only 
+        ever observed before 1982, it's my understanding that we do not have date
+        of birth, in which case I'll stick with self-reported age. 
 
-    /* 05. Ages in waves observed 
+        What does this mean for the sample? 
+        I create three samples using age-based criteria.
+            1. Sample N: anyone observed in the PSID before age 18.
+            2. Sample A: anyone observed in the PSID at least twice before age 18.
+            3. Sample B: anyone observed in the PSID for the duration of childhood (0-17).
 
+        For those observed at age 17, some are reporting their experience during 0-17 years of life, 
+        while others are reporting experience from 0-17.9999... years of life. 
 
+        The variables in_1968, in_1969, ..., in_1997, in_1999, ..., in_2023 
+        take the value 1 during the years they are observed and missing otherwise.
 
-            The variables in_1968, in_1969, ..., in_1997, in_1999, ..., in_2023 
-            take the value 1 during the years they are observed and missing otherwise.
-            
-            You can have a recorded age but not be observed in the family unit that year (e.g., 423 ppl in 1968)
+        You can have a recorded age but not be observed in the family unit that year (e.g., 423 ppl in 1968)
+        Therefore, I replace each year's age variable with missing if the person is not observed in that year.
 
-            Therefore, I replace each year's age variable with missing if the person is not observed in that year.
-            
-            ** No person is age "0". The nascent codes 0 and 999 are 
-
-            */
-
-        local birthinterview
-        if `birthinterview' == 1{
-            local birthmonth 1985 ER30403 1986 ER30433 1987 ER30467 1988 ER30502 1989 ER30539 1990 ER30574 1991 ER30610 1992 ER30646 1993 ER30693 1994 ER30737 1995 ER30810 1996 ER33105 1997 ER33205 1999 ER33305 2001 ER33405 2003 ER33505 2005 ER33605 2007 ER33705 2009 ER33805 2011 ER33905 2013 ER34005 2015 ER34105 2017 ER34205 2019 ER34306 2021 ER34505 2023 ER34705
-
-        }
-
-
-
-
+        **** No person is age "0". The nascent codes 0 and 999 are both for missing age. 
+        
+        */
         forvalues i = 1968/1997{
             g age_`i' = . 
             label var age_`i' "Age in FU `i'"
@@ -175,707 +211,166 @@ if `part1' == 1{
             replace age_first_observed = age_`i' if age_first_observed == . & age_`i' != .
         }
 
+        replace age_first_observed = 999 if age_first_observed == .
+
         label var age_first_observed "Age first observed in PSID"
 
-        /* 06a. Check 1 */
-            local check1 0
+            /* 06a. Check 1 */
+                local check1 0
 
-            if `check1' == 1{
-                g age_first_observed2 = age_1968 if age_1968 != .
+                if `check1' == 1{
+                    g age_first_observed2 = age_1968 if age_1968 != .
 
-                forvalues i=1969/1997{
-                    replace age_first_observed2 = age_`i' if age_first_observed2 == . & age_`i' != . & in_`i' == 1
+                    forvalues i=1969/1997{
+                        replace age_first_observed2 = age_`i' if age_first_observed2 == . & age_`i' != . & in_`i' == 1
+                    }
+
+                    forvalues i=1999(2)2023{
+                        replace age_first_observed2 = age_`i' if age_first_observed2 == . & age_`i' != . & in_`i' == 1
+                    }
                 }
 
-                forvalues i=1999(2)2023{
-                    replace age_first_observed2 = age_`i' if age_first_observed2 == . & age_`i' != . & in_`i' == 1
-                }
-            }
-
-    /* 07. Waves & waves under 18 & waves under AND at 18*/
+     /* 07. Waves & waves under 18 & waves under AND at 18 */
         g waves = in_1968 + in_1969 + in_1970 + in_1971 + in_1972 + in_1973 + in_1974 + in_1975 + in_1976 + in_1977 + in_1978 + in_1979 + in_1980 + in_1981 + in_1982 + in_1983 + in_1984 + in_1985 + in_1986 + in_1987 + in_1988 + in_1989 + in_1990 + in_1991 + in_1992 + in_1993 + in_1994 + in_1995 + in_1996 + in_1997 + in_1999  + in_2001  + in_2003  + in_2005  + in_2007  + in_2009  + in_2011  + in_2013  + in_2015  + in_2017  + in_2019  + in_2021  + in_2023
         label var waves "Number of waves observed in PSID"
-        
+            
         g waves_18_under = (!missing(age_1968) & age_1968 <= 18) + (!missing(age_1969) & age_1969 <= 18) + (!missing(age_1970) & age_1970 <= 18) + (!missing(age_1971) & age_1971 <= 18) + (!missing(age_1972) & age_1972 <= 18) + (!missing(age_1973) & age_1973 <= 18) + (!missing(age_1974) & age_1974 <= 18) + (!missing(age_1975) & age_1975 <= 18) + (!missing(age_1976) & age_1976 <= 18) + (!missing(age_1977) & age_1977 <= 18) + (!missing(age_1978) & age_1978 <= 18) + (!missing(age_1979) & age_1979 <= 18) + (!missing(age_1980) & age_1980 <= 18) + (!missing(age_1981) & age_1981 <= 18) + (!missing(age_1982) & age_1982 <= 18) + (!missing(age_1983) & age_1983 <= 18) + (!missing(age_1984) & age_1984 <= 18) + (!missing(age_1985) & age_1985 <= 18) + (!missing(age_1986) & age_1986 <= 18) + (!missing(age_1987) & age_1987 <= 18) + (!missing(age_1988) & age_1988 <= 18) + (!missing(age_1989) & age_1989 <= 18) + (!missing(age_1990) & age_1990 <= 18) + (!missing(age_1991) & age_1991 <= 18) + (!missing(age_1992) & age_1992 <= 18) + (!missing(age_1993) & age_1993 <= 18) + (!missing(age_1994) & age_1994 <= 18) + (!missing(age_1995) & age_1995 <= 18) + (!missing(age_1996) & age_1996 <= 18) + (!missing(age_1997) & age_1997 <= 18) + (!missing(age_1999) & age_1999 <= 18) + (!missing(age_2001) & age_2001 <= 18) + (!missing(age_2003) & age_2003 <= 18) + (!missing(age_2005) & age_2005 <= 18) + (!missing(age_2007) & age_2007 <= 18) + (!missing(age_2009) & age_2009 <= 18) + (!missing(age_2011) & age_2011 <= 18) + (!missing(age_2013) & age_2013 <= 18) + (!missing(age_2015) & age_2015 <= 18) + (!missing(age_2017) & age_2017 <= 18) + (!missing(age_2019) & age_2019 <= 18) + (!missing(age_2021) & age_2021 <= 18) + (!missing(age_2023) & age_2023 <= 18)
         label var waves_18_under "Waves in PSID at or before age 18"
 
-
         g waves_17_under = (!missing(age_1968) & age_1968 < 18) + (!missing(age_1969) & age_1969 < 18) + (!missing(age_1970) & age_1970 < 18) + (!missing(age_1971) & age_1971 < 18) + (!missing(age_1972) & age_1972 < 18) + (!missing(age_1973) & age_1973 < 18) + (!missing(age_1974) & age_1974 < 18) + (!missing(age_1975) & age_1975 < 18) + (!missing(age_1976) & age_1976 < 18) + (!missing(age_1977) & age_1977 < 18) + (!missing(age_1978) & age_1978 < 18) + (!missing(age_1979) & age_1979 < 18) + (!missing(age_1980) & age_1980 < 18) + (!missing(age_1981) & age_1981 < 18) + (!missing(age_1982) & age_1982 < 18) + (!missing(age_1983) & age_1983 < 18) + (!missing(age_1984) & age_1984 < 18) + (!missing(age_1985) & age_1985 < 18) + (!missing(age_1986) & age_1986 < 18) + (!missing(age_1987) & age_1987 < 18) + (!missing(age_1988) & age_1988 < 18) + (!missing(age_1989) & age_1989 < 18) + (!missing(age_1990) & age_1990 < 18) + (!missing(age_1991) & age_1991 < 18) + (!missing(age_1992) & age_1992 < 18) + (!missing(age_1993) & age_1993 < 18) + (!missing(age_1994) & age_1994 < 18) + (!missing(age_1995) & age_1995 < 18) + (!missing(age_1996) & age_1996 < 18) + (!missing(age_1997) & age_1997 < 18) + (!missing(age_1999) & age_1999 < 18) + (!missing(age_2001) & age_2001 < 18) + (!missing(age_2003) & age_2003 < 18) + (!missing(age_2005) & age_2005 < 18) + (!missing(age_2007) & age_2007 < 18) + (!missing(age_2009) & age_2009 < 18) + (!missing(age_2011) & age_2011 < 18) + (!missing(age_2013) & age_2013 < 18) + (!missing(age_2015) & age_2015 < 18) + (!missing(age_2017) & age_2017 < 18) + (!missing(age_2019) & age_2019 < 18) + (!missing(age_2021) & age_2021 < 18) + (!missing(age_2023) & age_2023 < 18)
         label var waves_17_under "Waves in PSID UNDER age 18 (17 and less)"
-
-
-
-    /* 08. Relationships roster - load in relhist.dta */
+       
         tempfile waves
         save `waves', replace
-        clear
-        use "${output}/relhist.dta", clear
-
-        sort V1 V2 V3
-        rename V1 fam
-        label var fam "V1/ER30001 Family ID 1968"
-
-        rename V2 person_number
-        label var person_number "V2/ER30002 Person number 68"
-
-        g ID = (1000*fam) + person_number
-        label var ID "Individual ID (V1*1000 + V2)"
-
-        rename V3 person_number_y
-        label var person_number_y "V3/ER30002 Person number 68 (y)"
     
-        g ID_y = (1000*fam) + person_number_y
-        label var ID_y "Individual ID (V1*1000 + V3)"
-
-        order fam ID person_number ID_y person_number_y
-
-        rename V100 birth_year_x
-        rename V101 sex_x
-        rename V200 birth_year_y
-        rename V201 sex_y
-
-    /* 08a. Renaming in relhist */
-        forvalues i=301(1)318{
-            local varname = "V`i'"
-            rename `varname' psid_status_x_`=1968 + (`i'-301)'
-        }
-        forvalues i=401(1)418{
-            local varname = "V`i'"
-            rename `varname' psid_status_y_`=1968 + (`i'-401)'
-        }
-        forvalues i=501(1)518{
-            local varname = "V`i'"
-            rename `varname' coresidence_status_`=1968 + (`i'-501)'
-        }
-        forvalues i=601(1)618{
-            local varname = "V`i'"
-            rename `varname' rv_8_rel_`=1968 + (`i'-601)'
-        }
-        forvalues i=701(1)718{
-            local varname = "V`i'"
-            rename `varname' rv_8_his_`=1968 + (`i'-701)'
-
-        }
-        forvalues i=801(1)818{
-            local varname = "V`i'"
-            rename `varname' rv_5_rel_`=1968 + (`i'-801)'
-
-        }
-        forvalues i=901(1)918{
-            local varname = "V`i'"
-            rename `varname' rv_5_his_`=1968 + (`i'-901)'
-
-        }
-
-        * 40,474  9.5% --> no relationship derived. 
-        rename V4 relationship_3
-        rename V6 relationship_5
-        rename V5 rel_3_changed
-        rename V7 rel_5_changed
-
-
-    /* 08b. RELATIONSHIP for static */
-        * replace relationship with modal relationship if relationship never changed.
-        g relationship = relationship_5 if rel_5_changed == "1"
-
-    /* 08c. Drop dyads for whom we have no relationship data */
-        * ~ 9.5% of dyads have no relationship data (relationship_5 == "00000")        
-        drop if relationship_5 == "00000"
-
-    /* 08d. Deal with changing dyads -- DO THIS ANOTHER TIME 
-    RIGHT NOW, JUST KEEP EVERYONE'S RELATIONSHIP AS MOST COMMONLY REPORTED. 
-        forvalues i = 1968/1985{
-            replace rv_5_rel_`i' = "" if rel_5_changed == "1"
-            replace rv_5_his_`i' = "" if rel_5_changed == "1"
-        }
-
-        * Compress yearly relationship sequence into distinct states and change years.
-        * max_changes = 17 implies up to 18 distinct relationships (rel_1 ... rel_18).
-        * in reality, the maximum number of changes is only 5, so I can hardcode that.
-        local max_changes = 5
-
-        forvalues j = 1/`=`max_changes' + 1' {
-            g str5 rel_`j' = ""
-        }
-        forvalues j = 1/`max_changes' {
-            g int change_`j' = .
-        }
-
-        g str5 _prev_rel = ""
-        g byte _rel_slot = 0
-        g byte _new_rel = 0
-
-        forvalues y = 1968/1985 {
-            replace _new_rel = (rv_5_rel_`y' != "" & rv_5_rel_`y' != _prev_rel)
-            replace _rel_slot = _rel_slot + 1 if _new_rel == 1
-
-            forvalues j = 1/`=`max_changes' + 1' {
-                replace rel_`j' = rv_5_rel_`y' if _new_rel == 1 & _rel_slot == `j'
-            }
-
-            forvalues j = 1/`max_changes' {
-                replace change_`j' = `y' if _new_rel == 1 & _rel_slot == `=`j' + 1' & missing(change_`j')
-            }
-
-            replace _prev_rel = rv_5_rel_`y' if _new_rel == 1
-        }
-
-        drop _prev_rel _rel_slot _new_rel
-
-
-    /* 08f. Repeat for rel_his */
-        local max_changes = 5
-
-        forvalues j = 1/`=`max_changes' + 1' {
-            g str5 rel2_`j' = ""
-        }
-        forvalues j = 1/`max_changes' {
-            g int change2_`j' = .
-        }
-
-        g str5 _prev_rel = ""
-        g byte _rel_slot = 0
-        g byte _new_rel = 0
-
-        forvalues y = 1968/1985 {
-            replace _new_rel = (rv_5_his_`y' != "" & rv_5_his_`y' != _prev_rel)
-            replace _rel_slot = _rel_slot + 1 if _new_rel == 1
-
-            forvalues j = 1/`=`max_changes' + 1' {
-                replace rel2_`j' = rv_5_his_`y' if _new_rel == 1 & _rel_slot == `j'
-            }
-
-            forvalues j = 1/`max_changes' {
-                replace change2_`j' = `y' if _new_rel == 1 & _rel_slot == `=`j' + 1' & missing(change2_`j')
-            }
-
-            replace _prev_rel = rv_5_his_`y' if _new_rel == 1
-        }
-        drop _prev_rel _rel_slot _new_rel
-
-
-    /* 08e. Standardize */
-        replace rel2_1 = "" if rel2_1 == rel_1
-        replace rel2_2 = "" if rel2_2 == rel_2
-        replace rel2_3 = "" if rel2_3 == rel_3
-        replace rel2_4 = "" if rel2_4 == rel_4
-        replace rel2_5 = "" if rel2_5 == rel_5
-
-        replace rel_1 = relationship if rel_5_changed == "1"
-
-    */
-    /* 8f. Encode relationship */
-        replace relationship = relationship_5
-        keep fam ID person_number ID_y person_number_y relationship
-
-        g rel_coded_A = ""
-        replace rel_coded_A = "Other" if relationship == "00098" 
-        replace rel_coded_A = "Spouse" if relationship == "00131" 
-        replace rel_coded_A = "Spouse" if relationship == "00132" 
-        replace rel_coded_A = "Spouse" if relationship == "00133" 
-        replace rel_coded_A = "Spouse" if relationship == "00134" 
-        replace rel_coded_A = "Spouse" if relationship == "00135" 
-        replace rel_coded_A = "Spouse" if relationship == "00137" 
-        replace rel_coded_A = "Spouse" if relationship == "00138" 
-        replace rel_coded_A = "Spouse" if relationship == "00139" 
-        replace rel_coded_A = "Spouse" if relationship == "00151" 
-        replace rel_coded_A = "Spouse" if relationship == "00152" 
-        replace rel_coded_A = "Spouse" if relationship == "00153" 
-        replace rel_coded_A = "Spouse" if relationship == "00154" 
-        replace rel_coded_A = "Spouse" if relationship == "00155" 
-        replace rel_coded_A = "Spouse" if relationship == "00156" 
-        replace rel_coded_A = "Spouse" if relationship == "00157" 
-        replace rel_coded_A = "Spouse" if relationship == "00158" 
-        replace rel_coded_A = "Spouse" if relationship == "00159" 
-        replace rel_coded_A = "Spouse" if relationship == "00160" 
-        replace rel_coded_A = "Spouse" if relationship == "00161" 
-        replace rel_coded_A = "Spouse" if relationship == "00162" 
-        replace rel_coded_A = "Spouse" if relationship == "00163" 
-        replace rel_coded_A = "Spouse" if relationship == "00164" 
-        replace rel_coded_A = "Spouse" if relationship == "00199" 
-        replace rel_coded_A = "Sibling" if relationship == "00231" 
-        replace rel_coded_A = "Sibling" if relationship == "00232" 
-        replace rel_coded_A = "Sibling" if relationship == "00233" 
-        replace rel_coded_A = "Sibling" if relationship == "00234" 
-        replace rel_coded_A = "Sibling" if relationship == "00235" 
-        replace rel_coded_A = "Sibling" if relationship == "00236" 
-        replace rel_coded_A = "Sibling" if relationship == "00238" 
-        replace rel_coded_A = "Sibling" if relationship == "00251" 
-        replace rel_coded_A = "Sibling" if relationship == "00252" 
-        replace rel_coded_A = "Sibling" if relationship == "00253" 
-        replace rel_coded_A = "Sibling" if relationship == "00254" 
-        replace rel_coded_A = "Sibling" if relationship == "00255" 
-        replace rel_coded_A = "Sibling" if relationship == "00256" 
-        replace rel_coded_A = "Sibling" if relationship == "00257" 
-        replace rel_coded_A = "Sibling" if relationship == "00258" 
-        replace rel_coded_A = "Sibling" if relationship == "00259" 
-        replace rel_coded_A = "Sibling" if relationship == "00260" 
-        replace rel_coded_A = "Sibling" if relationship == "00261" 
-        replace rel_coded_A = "Sibling" if relationship == "00262" 
-        replace rel_coded_A = "Sibling" if relationship == "00263" 
-        replace rel_coded_A = "Sibling" if relationship == "00264" 
-        replace rel_coded_A = "Sibling" if relationship == "00299" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00351" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00352" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00353" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00354" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00355" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00356" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00357" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00358" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00359" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00360" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00361" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00362" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00363" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00364" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00365" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00366" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00367" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00368" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00369" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00370" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00371" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00372" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00373" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00374" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00375" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00376" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00377" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00378" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00379" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00380" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00381" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00382" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00383" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00384" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00385" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00386" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00387" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00388" 
-        replace rel_coded_A = "Sibling-in-law" if relationship == "00399" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00431" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00432" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00433" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00434" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00451" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00452" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00453" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00454" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00455" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00456" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00457" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00458" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00459" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00460" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00461" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00462" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00463" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00464" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00465" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00466" 
-        replace rel_coded_A = "Spouse of sibling-in-law" if relationship == "00499" 
-        replace rel_coded_A = "Sibling or cousin" if relationship == "00531" 
-        replace rel_coded_A = "Sibling or cousin" if relationship == "00532" 
-        replace rel_coded_A = "Sibling or cousin" if relationship == "00551" 
-        replace rel_coded_A = "Sibling or cousin" if relationship == "00552" 
-        replace rel_coded_A = "Cousin" if relationship == "00631" 
-        replace rel_coded_A = "Cousin" if relationship == "00632" 
-        replace rel_coded_A = "Cousin" if relationship == "00633" 
-        replace rel_coded_A = "Cousin" if relationship == "00634" 
-        replace rel_coded_A = "Cousin" if relationship == "00635" 
-        replace rel_coded_A = "Cousin" if relationship == "00651" 
-        replace rel_coded_A = "Cousin" if relationship == "00652" 
-        replace rel_coded_A = "Cousin" if relationship == "00653" 
-        replace rel_coded_A = "Cousin" if relationship == "00654" 
-        replace rel_coded_A = "Cousin" if relationship == "00655" 
-        replace rel_coded_A = "Cousin" if relationship == "00656" 
-        replace rel_coded_A = "Cousin" if relationship == "00657" 
-        replace rel_coded_A = "Cousin" if relationship == "00658" 
-        replace rel_coded_A = "Cousin" if relationship == "00659" 
-        replace rel_coded_A = "Cousin" if relationship == "00660" 
-        replace rel_coded_A = "Cousin" if relationship == "00661" 
-        replace rel_coded_A = "Cousin" if relationship == "00662" 
-        replace rel_coded_A = "Cousin" if relationship == "00663" 
-        replace rel_coded_A = "Cousin" if relationship == "00664" 
-        replace rel_coded_A = "Cousin" if relationship == "00665" 
-        replace rel_coded_A = "Cousin" if relationship == "00666" 
-        replace rel_coded_A = "Cousin" if relationship == "00699" 
-        replace rel_coded_A = "Sibling of sibling-in-law" if relationship == "00731" 
-        replace rel_coded_A = "Sibling of sibling-in-law" if relationship == "00732" 
-        replace rel_coded_A = "Sibling of sibling-in-law" if relationship == "00799" 
-        replace rel_coded_A = "Sibling-in-law of sibling-in-law" if relationship == "00851" 
-        replace rel_coded_A = "Sibling-in-law of sibling-in-law" if relationship == "00852" 
-        replace rel_coded_A = "Sibling-in-law of sibling-in-law" if relationship == "00853" 
-        replace rel_coded_A = "Sibling-in-law of sibling-in-law" if relationship == "00854" 
-        replace rel_coded_A = "Sibling-in-law of sibling-in-law" if relationship == "00899" 
-        replace rel_coded_A = "Cousin of spouse" if relationship == "00951" 
-        replace rel_coded_A = "Cousin of spouse" if relationship == "00952" 
-        replace rel_coded_A = "Cousin of spouse" if relationship == "00999" 
-        replace rel_coded_A = "Parent of child-in-law" if relationship == "01031" 
-        replace rel_coded_A = "Parent of child-in-law" if relationship == "01032" 
-        replace rel_coded_A = "Parent of child-in-law" if relationship == "01099" 
-        replace rel_coded_A = "Other" if relationship == "10098" 
-        replace rel_coded_A = "Parent" if relationship == "10101" 
-        replace rel_coded_A = "Parent" if relationship == "10102" 
-        replace rel_coded_A = "Parent" if relationship == "10103" 
-        replace rel_coded_A = "Parent" if relationship == "10104" 
-        replace rel_coded_A = "Parent" if relationship == "10105" 
-        replace rel_coded_A = "Parent" if relationship == "10106" 
-        replace rel_coded_A = "Parent" if relationship == "10107" 
-        replace rel_coded_A = "Parent" if relationship == "10108" 
-        replace rel_coded_A = "Parent" if relationship == "10109" 
-        replace rel_coded_A = "Parent" if relationship == "10110" 
-        replace rel_coded_A = "Parent" if relationship == "10111" 
-        replace rel_coded_A = "Parent" if relationship == "10112" 
-        replace rel_coded_A = "Parent" if relationship == "10113" 
-        replace rel_coded_A = "Parent" if relationship == "10114" 
-        replace rel_coded_A = "Parent" if relationship == "10115" 
-        replace rel_coded_A = "Parent" if relationship == "10116" 
-        replace rel_coded_A = "Parent" if relationship == "10117" 
-        replace rel_coded_A = "Parent" if relationship == "10118" 
-        replace rel_coded_A = "Parent" if relationship == "10119" 
-        replace rel_coded_A = "Parent" if relationship == "10199" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10201" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10202" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10203" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10204" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10205" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10206" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10207" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10208" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10209" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10210" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10211" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10212" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10213" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10215" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10216" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10217" 
-        replace rel_coded_A = "Parent-in-law" if relationship == "10299" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10301" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10302" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10303" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10304" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10305" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10306" 
-        replace rel_coded_A = "Parent or aunt/uncle" if relationship == "10307" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10401" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10402" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10403" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10404" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10405" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10406" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10407" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10408" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10409" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10411" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10412" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10413" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10414" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10415" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10416" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10417" 
-        replace rel_coded_A = "Aunt/uncle" if relationship == "10499" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10501" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10502" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10503" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10504" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10505" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10506" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10507" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10509" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10510" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10511" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10513" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10514" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10515" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10516" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10519" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10520" 
-        replace rel_coded_A = "Spouse of aunt/uncle" if relationship == "10599" 
-        replace rel_coded_A = "Aunt/uncle of spouse" if relationship == "10601" 
-        replace rel_coded_A = "Aunt/uncle of spouse" if relationship == "10602" 
-        replace rel_coded_A = "Aunt/uncle of spouse" if relationship == "10603" 
-        replace rel_coded_A = "Aunt/uncle of spouse" if relationship == "10699" 
-        replace rel_coded_A = "Spouse of aunt/uncle of spouse" if relationship == "10701" 
-        replace rel_coded_A = "Spouse of aunt/uncle of spouse" if relationship == "10799" 
-        replace rel_coded_A = "Cousin of parent" if relationship == "10801" 
-        replace rel_coded_A = "Cousin of parent" if relationship == "10802" 
-        replace rel_coded_A = "Cousin of parent" if relationship == "10899" 
-        replace rel_coded_A = "Sibling or spouse of aunt/uncle" if relationship == "10901" 
-        replace rel_coded_A = "Sibling or spouse of aunt/uncle" if relationship == "10902" 
-        replace rel_coded_A = "Sibling or spouse of aunt/uncle" if relationship == "10999" 
-        replace rel_coded_A = "Parent-in-law of sibling" if relationship == "11001" 
-        replace rel_coded_A = "Parent-in-law of sibling" if relationship == "11002" 
-        replace rel_coded_A = "Parent-in-law of sibling" if relationship == "11099" 
-        replace rel_coded_A = "Parent-in-law of sibling of spouse" if relationship == "11101" 
-        replace rel_coded_A = "Parent-in-law of sibling of spouse" if relationship == "11102" 
-        replace rel_coded_A = "Parent-in-law of sibling of spouse" if relationship == "11199" 
-        replace rel_coded_A = "Grandparent of child-in-law" if relationship == "11299" 
-        replace rel_coded_A = "Other" if relationship == "15098" 
-        replace rel_coded_A = "Child" if relationship == "15101" 
-        replace rel_coded_A = "Child" if relationship == "15102" 
-        replace rel_coded_A = "Child" if relationship == "15103" 
-        replace rel_coded_A = "Child" if relationship == "15104" 
-        replace rel_coded_A = "Child" if relationship == "15105" 
-        replace rel_coded_A = "Child" if relationship == "15106" 
-        replace rel_coded_A = "Child" if relationship == "15107" 
-        replace rel_coded_A = "Child" if relationship == "15108" 
-        replace rel_coded_A = "Child" if relationship == "15109" 
-        replace rel_coded_A = "Child" if relationship == "15110" 
-        replace rel_coded_A = "Child" if relationship == "15111" 
-        replace rel_coded_A = "Child" if relationship == "15112" 
-        replace rel_coded_A = "Child" if relationship == "15113" 
-        replace rel_coded_A = "Child" if relationship == "15114" 
-        replace rel_coded_A = "Child" if relationship == "15115" 
-        replace rel_coded_A = "Child" if relationship == "15116" 
-        replace rel_coded_A = "Child" if relationship == "15117" 
-        replace rel_coded_A = "Child" if relationship == "15118" 
-        replace rel_coded_A = "Child" if relationship == "15119" 
-        replace rel_coded_A = "Child" if relationship == "15199" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15201" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15202" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15203" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15204" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15205" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15206" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15207" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15208" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15209" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15210" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15211" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15212" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15213" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15215" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15216" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15217" 
-        replace rel_coded_A = "Child-in-law" if relationship == "15299" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15301" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15302" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15303" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15304" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15305" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15306" 
-        replace rel_coded_A = "Child or Niece/nephew" if relationship == "15307" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15401" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15402" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15403" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15404" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15405" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15406" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15407" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15408" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15409" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15411" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15412" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15413" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15414" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15415" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15416" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15417" 
-        replace rel_coded_A = "Niece/nephew" if relationship == "15499" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15501" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15502" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15503" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15504" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15505" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15506" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15507" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15509" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15510" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15511" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15513" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15514" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15515" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15516" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15519" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15520" 
-        replace rel_coded_A = "Niece/nephew of spouse" if relationship == "15599" 
-        replace rel_coded_A = "Spouse of niece/nephew" if relationship == "15601" 
-        replace rel_coded_A = "Spouse of niece/nephew" if relationship == "15602" 
-        replace rel_coded_A = "Spouse of niece/nephew" if relationship == "15603" 
-        replace rel_coded_A = "Spouse of niece/nephew" if relationship == "15699" 
-        replace rel_coded_A = "Spouse of niece/nephew of spouse" if relationship == "15701" 
-        replace rel_coded_A = "Spouse of niece/nephew of spouse" if relationship == "15799" 
-        replace rel_coded_A = "Child of cousin" if relationship == "15801" 
-        replace rel_coded_A = "Child of cousin" if relationship == "15802" 
-        replace rel_coded_A = "Child of cousin" if relationship == "15899" 
-        replace rel_coded_A = "Niece/nephew of spouse of sibling" if relationship == "15901" 
-        replace rel_coded_A = "Niece/nephew of spouse of sibling" if relationship == "15902" 
-        replace rel_coded_A = "Niece/nephew of spouse of sibling" if relationship == "15999" 
-        replace rel_coded_A = "Sibling of child-in-law" if relationship == "16001" 
-        replace rel_coded_A = "Sibling of child-in-law" if relationship == "16002" 
-        replace rel_coded_A = "Sibling of child-in-law" if relationship == "16099" 
-        replace rel_coded_A = "Spouse of sibling of child-in-law" if relationship == "16101" 
-        replace rel_coded_A = "Spouse of sibling of child-in-law" if relationship == "16102" 
-        replace rel_coded_A = "Spouse of sibling of child-in-law" if relationship == "16199" 
-        replace rel_coded_A = "Parent-in-law of grandchild" if relationship == "16299" 
-        replace rel_coded_A = "Grandparent" if relationship == "20098" 
-        replace rel_coded_A = "Grandparent" if relationship == "20101" 
-        replace rel_coded_A = "Grandparent" if relationship == "20102" 
-        replace rel_coded_A = "Grandparent" if relationship == "20103" 
-        replace rel_coded_A = "Grandparent" if relationship == "20104" 
-        replace rel_coded_A = "Grandparent" if relationship == "20105" 
-        replace rel_coded_A = "Grandparent" if relationship == "20106" 
-        replace rel_coded_A = "Grandparent" if relationship == "20107" 
-        replace rel_coded_A = "Grandparent" if relationship == "20108" 
-        replace rel_coded_A = "Grandparent" if relationship == "20109" 
-        replace rel_coded_A = "Grandparent" if relationship == "20110" 
-        replace rel_coded_A = "Grandparent" if relationship == "20111" 
-        replace rel_coded_A = "Grandparent" if relationship == "20112" 
-        replace rel_coded_A = "Grandparent" if relationship == "20113" 
-        replace rel_coded_A = "Grandparent" if relationship == "20114" 
-        replace rel_coded_A = "Grandparent" if relationship == "20199" 
-        replace rel_coded_A = "Grandparent of spouse" if relationship == "20201" 
-        replace rel_coded_A = "Grandparent of spouse" if relationship == "20202" 
-        replace rel_coded_A = "Grandparent of spouse" if relationship == "20203" 
-        replace rel_coded_A = "Grandparent of spouse" if relationship == "20299" 
-        replace rel_coded_A = "Grandparent or Grandaunt/uncle" if relationship == "20301" 
-        replace rel_coded_A = "Grandaunt/uncle" if relationship == "20401" 
-        replace rel_coded_A = "Grandaunt/uncle" if relationship == "20402" 
-        replace rel_coded_A = "Grandaunt/uncle" if relationship == "20499" 
-        replace rel_coded_A = "Grandparent or Great-grandparent" if relationship == "20501" 
-        replace rel_coded_A = "Grandparent or Great-grandparent" if relationship == "20502" 
-        replace rel_coded_A = "Grandparent or Great-grandparent" if relationship == "20503" 
-        replace rel_coded_A = "Grandparent or Great-grandparent" if relationship == "20504" 
-        replace rel_coded_A = "Grandparent or Great-grandparent" if relationship == "20505" 
-        replace rel_coded_A = "Great-grandparent" if relationship == "20601" 
-        replace rel_coded_A = "Great-grandparent" if relationship == "20602" 
-        replace rel_coded_A = "Great-grandparent" if relationship == "20603" 
-        replace rel_coded_A = "Great-grandparent" if relationship == "20604" 
-        replace rel_coded_A = "Great-grandparent" if relationship == "20699" 
-        replace rel_coded_A = "Great-great-grandparent" if relationship == "20799" 
-        replace rel_coded_A = "Great-grandaunt/uncle" if relationship == "20899" 
-        replace rel_coded_A = "Gaunt/guncle or parent of a/u by m" if relationship == "20901" 
-        replace rel_coded_A = "Gaunt/guncle or parent of a/u by m" if relationship == "20902" 
-        replace rel_coded_A = "Gaunt/guncle or parent of a/u by m" if relationship == "20903" 
-        replace rel_coded_A = "Gaunt/guncle or parent of a/u by m" if relationship == "20904" 
-        replace rel_coded_A = "Gaunt/guncle or parent of a/u by m" if relationship == "20999" 
-        replace rel_coded_A = "Grandparent of spouse of sibling" if relationship == "21099" 
-        replace rel_coded_A = "Great-grandparent of spouse" if relationship == "21199" 
-        replace rel_coded_A = "Grandaunt/uncle of spouse" if relationship == "21299" 
-        replace rel_coded_A = "Grandchild" if relationship == "25098" 
-        replace rel_coded_A = "Grandchild" if relationship == "25101" 
-        replace rel_coded_A = "Grandchild" if relationship == "25102" 
-        replace rel_coded_A = "Grandchild" if relationship == "25103" 
-        replace rel_coded_A = "Grandchild" if relationship == "25104" 
-        replace rel_coded_A = "Grandchild" if relationship == "25105" 
-        replace rel_coded_A = "Grandchild" if relationship == "25106" 
-        replace rel_coded_A = "Grandchild" if relationship == "25107" 
-        replace rel_coded_A = "Grandchild" if relationship == "25108" 
-        replace rel_coded_A = "Grandchild" if relationship == "25109" 
-        replace rel_coded_A = "Grandchild" if relationship == "25110" 
-        replace rel_coded_A = "Grandchild" if relationship == "25111" 
-        replace rel_coded_A = "Grandchild" if relationship == "25112" 
-        replace rel_coded_A = "Grandchild" if relationship == "25113" 
-        replace rel_coded_A = "Grandchild" if relationship == "25114" 
-        replace rel_coded_A = "Grandchild" if relationship == "25199" 
-        replace rel_coded_A = "Spouse of grandchild" if relationship == "25201" 
-        replace rel_coded_A = "Spouse of grandchild" if relationship == "25202" 
-        replace rel_coded_A = "Spouse of grandchild" if relationship == "25203" 
-        replace rel_coded_A = "Spouse of grandchild" if relationship == "25299" 
-        replace rel_coded_A = "Grandchild or Grandniece/nephew" if relationship == "25301" 
-        replace rel_coded_A = "Grandniece/nephew" if relationship == "25401" 
-        replace rel_coded_A = "Grandniece/nephew" if relationship == "25402" 
-        replace rel_coded_A = "Grandniece/nephew" if relationship == "25499" 
-        replace rel_coded_A = "Grandchild or Great-grandchild" if relationship == "25501" 
-        replace rel_coded_A = "Grandchild or Great-grandchild" if relationship == "25502" 
-        replace rel_coded_A = "Grandchild or Great-grandchild" if relationship == "25503" 
-        replace rel_coded_A = "Grandchild or Great-grandchild" if relationship == "25504" 
-        replace rel_coded_A = "Grandchild or Great-grandchild" if relationship == "25505" 
-        replace rel_coded_A = "Great-grandchild" if relationship == "25601" 
-        replace rel_coded_A = "Great-grandchild" if relationship == "25602" 
-        replace rel_coded_A = "Great-grandchild" if relationship == "25603" 
-        replace rel_coded_A = "Great-grandchild" if relationship == "25604" 
-        replace rel_coded_A = "Great-grandchild" if relationship == "25699" 
-        replace rel_coded_A = "Great-great-grandchild" if relationship == "25799" 
-        replace rel_coded_A = "Great-grandniece/nephew" if relationship == "25899" 
-        replace rel_coded_A = "Gniece/neph or niece/neph by m of child" if relationship == "25901" 
-        replace rel_coded_A = "Gniece/neph or niece/neph by m of child" if relationship == "25902" 
-        replace rel_coded_A = "Gniece/neph or niece/neph by m of child" if relationship == "25903" 
-        replace rel_coded_A = "Gniece/neph or niece/neph by m of child" if relationship == "25904" 
-        replace rel_coded_A = "Gniece/neph or niece/neph by m of child" if relationship == "25999" 
-        replace rel_coded_A = "Sibling of spouse of grandchild" if relationship == "26099" 
-        replace rel_coded_A = "Spouse of great-grandchild" if relationship == "26199" 
-        replace rel_coded_A = "Spouse of grandniece/nephew" if relationship == "26299" 
-        replace rel_coded_A = "Other relative" if relationship == "99731" 
-        replace rel_coded_A = "Other non-relative" if relationship == "99831" 
-
-        label var rel_coded_A "Relationship btwn person X and Y"
-
-        keep ID ID_y rel_coded_A fam
-
-
-    /* 09. Reshape*/
-    bysort ID (ID_y): g index = _n
-    reshape wide rel_coded_A ID_y, i(ID) j(index)            
-    tempfile relmatrix
-    save `relmatrix', replace
-    * 386,134
-
-    /* 10. FIMS: merge on family identification mapping system files that allow us to identify parents, gpars, and sibs */
-
+    /* 07. FIMS: merge on family identification mapping system files that allow us to identify parents, gpars, and sibs */
         * Merge on grandparents FIMS file (note--this also has the parent variables)
         merge 1:1 ID using "${output}/_fims_gpars_clean.dta"
         * N = 103,701
         drop if _merge == 2
-        * N= 85,836
+        * N= 85,536
         drop _merge
 
         * Merge on siblings FIMS file
         merge 1:1 ID using "${output}/_fims_sib_clean.dta"
-        * N = 85,836
+        * N = 85,536
 
-        * Merge on waves
-        drop _merge
-        merge 1:1 ID using "`waves'"
-
-    
-    /* 11. CREATE ANALYTIC SAMPLES & SAVE tempfile pre_cut1: 
-        * sample N: all PSID children. Anyone observed for any number of waves before age 18.
-        * sample A: two-wave children. Anyone observed for at least two waves before age 18.
+    /* 08. CREATE ANALYTIC SAMPLES & SAVE tempfile pre_cut1: 
+        * sample N: all PSID children. Anyone observed for any number of waves BEFORE age 18.
+        * sample A: two-wave children. Anyone observed for at least two waves BEFORE age 18.
         * sample B: full childhood. Anyone observed continuously from birth to age 18. 
-        * before drop, n=85,836 sample people; 8,102 families (distinct values of fam); n=103,701 total ppl if we keep gpars/pars
+        * before drop, n=85,536 sample people; 8,102 families (distinct values of fam); n=103,701 total ppl if we keep gpars/pars
         */
-        replace waves_18_under = 0 if waves_18_under == .
-        g analytic_sample_indiv = 1 if waves_18_under >= 1
-        replace analytic_sample_indiv = 0 if waves_18_under == 0
-        egen analytic_sample_family = max(analytic_sample_indiv), by(fam)
-        label var analytic_sample_indiv "Binary: In Sample N, A, or B"
-        label var analytic_sample_family "Binary: Family with at least one child in Sample N, A, or B"
+
+        g analytic_sample_indiv = 1 if waves_17_under >= 1
+        replace analytic_sample_indiv = 0 if waves_17_under == 0
+
+    /* 09. The ERRONEOUS PEOPLE 
+            There are 11 people for whom analytic_sample_indiv == 1 (they are allegedly observed 
+            at least once before age 18), but whose age at first observation is >= 18.
+            I correct these people using the rule: 
+                * If the person is ever observed before age 16, KEEP IN SAMPLE. Hardcode age first observed. 
+                * If the person is not ever observed before age 16, DROP FROM SAMPLE. Set analytic_sample_indiv to 0.
+            */
+        * P1: 1830184 --> 52. 2009, 2011, 2013, 2015; ages: 52, X, 13, X, 14, X, 17
+            * S1: hardcode age first observed as 12. 
+            replace age_first_observed = 12 if ID == 1830184
+        * P2: 5535171 --> 30. 1989, 1990, 1991, 1992; ages: 30, 17, 18, 18
+            * S2: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5535171
+        * P3: 5129170 --> 18. 1975-1984; ages: 18, 17, 18, 19, 21, 22, 22, 23, 24, 26
+            * S3: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5129170
+        * P4: 5349174 --> 18. 1985-1989; ages: 18, 17, 17, 18, 20
+            * S4: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5349174
+        * P5: 5876003 --> 18. 1968-1970. 1973-2019; ages: 18, 17, 18
+            * S5: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5876003
+        * P6: 8190002 --> 18. 1990-1994; ages: 18, 17, 19, 20, 20
+            * S6: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 8190002
+        * P7: 9045004 --> 18. 1992-1995; ages: 18, 17, 18, 19
+            * S7: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 9045004
+        * P8: 1841003 --> 19. 1968-1972, 1974-2015; ages: 19, 14, 15, 16, 17
+            * S8: hardcode age first observed as 13.
+            replace age_first_observed = 13 if ID == 1841003
+        * P9: 5128182 --> 19. 1992-1996; ages: 19, 14, 15, 16, 17
+            * S9: hardcode age first observed as 13. 
+            replace age_first_observed = 13 if ID == 5128182
+        * P10: 5442171 --> 19. 1971, 1973-1974. ages: 19, X, 16, 17
+            * S10: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5442171
+        * P11: 5449170 --> 19. 1971-2023. ages: 19, 17, 18, 18, 19, 21, ...
+            * S11: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 5449170
+        * P12: 9296170 --> 19. 1993-1995. ages: 19, 17, 18
+            * S12: drop from sample
+            replace analytic_sample_indiv = 0 if ID == 9296170
 
         tempfile pre_cut1
         save `pre_cut1', replace
 
-    /* 10. Drop unqualified families 
+    /* 10. Analytic family & Drop unqualified families 
         * 5,640 families
         * 80,396 sample people in qualified families
         * 46,351 qualified children (children in sample N, A, or B)
         */
+        egen analytic_sample_family = max(analytic_sample_indiv), by(fam)
+        label var analytic_sample_indiv "Binary: In Sample N, A, or B"
+        label var analytic_sample_family "Binary: Family with at least one child in Sample N, A, or B"
 
         drop if analytic_sample_family == 0
 
-    /* 11. Define each sample: N, A, B 
-        N: 46,351 children; 80,396 sample people; 5,640 families
-        A: 39,285 children; 77,504 sample people; 5,038 families
-        B: 1,990 children; 35,552 sample people; 1,137 families
+    
+    
+    /* 11. RECODE WAVES -- ADJUST FOR SKIPPING YEARS */
+        
+        g waves_preskip = in_1968 + in_1969 + in_1970 + in_1971 + in_1972 + in_1973 + in_1974 + in_1975 + in_1976 + in_1977 + in_1978 + in_1979 + in_1980 + in_1981 + in_1982 + in_1983 + in_1984 + in_1985 + in_1986 + in_1987 + in_1988 + in_1989 + in_1990 + in_1991 + in_1992 + in_1993 + in_1994 + in_1995 + in_1996 + in_1997
+        label var waves_preskip "Number of waves observed in PSID before skipping years"
+        g waves_postskip = in_1999  + in_2001  + in_2003  + in_2005  + in_2007  + in_2009  + in_2011  + in_2013  + in_2015  + in_2017  + in_2019  + in_2021  + in_2023
+        label var waves_postskip "Number of waves observed in PSID after skipping years"
+
+        g waves_skipadjusted = waves_preskip + (waves_postskip*2)
+        label var waves_skipadjusted "Number of waves observed in PSID, adjusted for skipping years"
+
+        g waves17_preskip = (!missing(age_1968) & age_1968 < 18) + (!missing(age_1969) & age_1969 < 18) + (!missing(age_1970) & age_1970 < 18) + (!missing(age_1971) & age_1971 < 18) + (!missing(age_1972) & age_1972 < 18) + (!missing(age_1973) & age_1973 < 18) + (!missing(age_1974) & age_1974 < 18) + (!missing(age_1975) & age_1975 < 18) + (!missing(age_1976) & age_1976 < 18) + (!missing(age_1977) & age_1977 < 18) + (!missing(age_1978) & age_1978 < 18) + (!missing(age_1979) & age_1979 < 18) + (!missing(age_1980) & age_1980 < 18) + (!missing(age_1981) & age_1981 < 18) + (!missing(age_1982) & age_1982 < 18) + (!missing(age_1983) & age_1983 < 18) + (!missing(age_1984) & age_1984 < 18) + (!missing(age_1985) & age_1985 < 18) + (!missing(age_1986) & age_1986 < 18) + (!missing(age_1987) & age_1987 < 18) + (!missing(age_1988) & age_1988 < 18) + (!missing(age_1989) & age_1989 < 18) + (!missing(age_1990) & age_1990 < 18) + (!missing(age_1991) & age_1991 < 18) + (!missing(age_1992) & age_1992 < 18) + (!missing(age_1993) & age_1993 < 18) + (!missing(age_1994) & age_1994 < 18) + (!missing(age_1995) & age_1995 < 18) + (!missing(age_1996) & age_1996 < 18) + (!missing(age_1997) & age_1997 < 18)
+        g waves17_postskip = (!missing(age_1999) & age_1999 < 18) + (!missing(age_2001) & age_2001 < 18) + (!missing(age_2003) & age_2003 < 18) + (!missing(age_2005) & age_2005 < 18) + (!missing(age_2007) & age_2007 < 18) + (!missing(age_2009) & age_2009 < 18) + (!missing(age_2011) & age_2011 < 18) + (!missing(age_2013) & age_2013 < 18) + (!missing(age_2015) & age_2015 < 18) + (!missing(age_2017) & age_2017 < 18) + (!missing(age_2019) & age_2019 < 18) + (!missing(age_2021) & age_2021 < 18) + (!missing(age_2023) & age_2023 < 18)
+        g waves_17_skipadjusted = waves17_preskip + 2*waves17_postskip
+        label var waves_17_skipadjusted "Waves in PSID under age 18, adjusted for skipping years"
+        drop *_preskip *_postskip
+
+    /* 11. Define each sample: N, A, B --> ASK PAM: WHAT DO YOU THINK ABOUT MY DECISION RULE FOR B? 
+        
+        For samples N and A, we use waves_17_under. For sample B, we use waves_17_skipadjusted.
+        Sample N is determining how many children are simply observed. 
+        Sample A is counting who is observed at least twice before 17. If a kid is observed only once 
+        before 17 but after 1997, their waves_17_skipadjusted will be 2, so they will fall in sample A erroneously.
+
+        *Sample B is counting who is observed continously throughout childhood, using the rule of being observed 
+            for at least 17 waves before age 18, adjusted for skipping years. 
+
+
+        N: 45,048 children; 80,125 sample people; 5,565 families
+        A: 38,430 children; 77,504 sample people; 4,987 families
+        B: 8,823 children; 55,924 sample people; 2,047 families 
         */
 
-        g sample_indiv_N = 1 if waves_18_under >= 1
-        replace sample_indiv_N = 0 if waves_18_under == 0
-        label var sample_indiv_N "Binary: In Sample N (at least one wave observed at or before age 18)"
+        g sample_indiv_N = 1 if waves_17_under >= 1
+        replace sample_indiv_N = 0 if waves_17_under == 0
+        label var sample_indiv_N "Binary: In Sample N (at least one wave before age 18)"
         egen sample_family_N = max(sample_indiv_N), by(fam)
         label var sample_family_N "Binary: Family with at least one child in Sample N"
 
-        g sample_indiv_A = 1 if waves_18_under >= 2
-        replace sample_indiv_A = 0 if waves_18_under < 2
-        label var sample_indiv_A "Binary: In Sample A (at least two waves observed at or before age 18)"
+        g sample_indiv_A = 1 if waves_17_under >= 2
+        replace sample_indiv_A = 0 if waves_17_under < 2
+        label var sample_indiv_A "Binary: In Sample A (at least two waves before age 18)"
         egen sample_family_A = max(sample_indiv_A), by(fam)
         label var sample_family_A "Binary: Family with at least one child in Sample A"
 
-        g sample_indiv_B = 1 if waves_18_under >= 19
-        replace sample_indiv_B = 0 if waves_18_under < 19
+        g sample_indiv_B = 1 if waves_17_skipadjusted >= 17
+        replace sample_indiv_B = 0 if waves_17_skipadjusted < 17
         label var sample_indiv_B "Binary: In Sample B (observed in all waves from birth to age 18)"
         egen sample_family_B = max(sample_indiv_B), by(fam)
         label var sample_family_B "Binary: Family with at least one child in Sample B"
@@ -1123,13 +618,10 @@ if `part1' == 1{
 
 }
 
-
 /* ------------------------------------- */
 * PART II: merge together data from each survey 
 * wave
 /* ------------------------------------- */
-
-
 
 if `part2' == 1{
 
@@ -1824,7 +1316,19 @@ if `part2' == 1{
         rename yr year
         sort fam  year fam_id_
         order fam  year fam_id_
+
+        * Recode date_interview
+        g month_interview = date_interview
+        replace month_interview = "March" if date_interview == 1 | date_interview == 2 & year == 1968
+        replace month_interview = "April" if date_interview == 3 | date_interview == 4 & year == 1968
+        replace month_interview = "May" if date_interview == 5 | date_interview == 6 & year == 1968
+        replace month_interview = "June" if date_interview == 7 | date_interview == 8 & year == 1968
+        replace month_interview = "Unknown" if date_interview == 9 & year == 1968
+
+
         save "$output/_heads_panel.dta", replace
+
+
 
         * 22 variables
         * N = 320,456 (head-year observations)  
@@ -1833,13 +1337,565 @@ if `part2' == 1{
 }
 
 /* ------------------------------------- */
-* PART III: Merge three datasets: 
+* PART III: Relationships Roster
+/* ------------------------------------- */
+
+if `part3' == 1{
+    /* 01. Relationships roster - load in relhist.dta */
+        clear
+        use "${output}/relhist.dta", clear
+        sort V1 V2 V3
+        rename V1 fam
+        label var fam "V1/ER30001 Family ID 1968"
+
+        rename V2 person_number
+        label var person_number "V2/ER30002 Person number 68"
+        g ID = (1000*fam) + person_number
+        label var ID "Individual ID (V1*1000 + V2)"
+
+        rename V3 person_number_y
+        label var person_number_y "V3/ER30002 Person number 68 (y)"
+
+        g ID_y = (1000*fam) + person_number_y
+        label var ID_y "Individual ID (V1*1000 + V3)"
+        order fam ID person_number ID_y person_number_y
+        rename V100 birth_year_x
+        rename V101 sex_x
+        rename V200 birth_year_y
+        rename V201 sex_y
+
+    /* 02. Renaming in relhist */
+        forvalues i=301(1)318{
+            local varname = "V`i'"
+            rename `varname' psid_status_x_`=1968 + (`i'-301)'
+        }
+        forvalues i=401(1)418{
+            local varname = "V`i'"
+            rename `varname' psid_status_y_`=1968 + (`i'-401)'
+        }
+        forvalues i=501(1)518{
+            local varname = "V`i'"
+            rename `varname' coresidence_status_`=1968 + (`i'-501)'
+        }
+        forvalues i=601(1)618{
+            local varname = "V`i'"
+            rename `varname' rv_8_rel_`=1968 + (`i'-601)'
+        }
+        forvalues i=701(1)718{
+            local varname = "V`i'"
+            rename `varname' rv_8_his_`=1968 + (`i'-701)'
+        }
+        forvalues i=801(1)818{
+            local varname = "V`i'"
+            rename `varname' rv_5_rel_`=1968 + (`i'-801)'
+            }
+        forvalues i=901(1)918{
+            local varname = "V`i'"
+            rename `varname' rv_5_his_`=1968 + (`i'-901)'
+        }
+
+        * 40,474  9.5% --> no relationship derived. 
+        rename V4 relationship_3
+        rename V6 relationship_5
+        rename V5 rel_3_changed
+        rename V7 rel_5_changed
+
+    /* 03. Drop dyads for whom we have no relationship data */
+        * ~ 9.5% of dyads have no relationship data (relationship_5 == "00000")        
+        drop if relationship_5 == "00000"
+        * drop other vars for now
+        drop rv_8* relationship_3 rel_3_changed
+        rename relationship_5 relationship
+
+    /* 04. Relationship in year -- choose rv_5_rel when they don't match */
+        forvalues i = 1968/1985{
+            g relationship_`i' = ""
+        }
+        
+        forvalues i = 1968/1985{
+            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' == rv_5_his_`i'
+            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' != "" & rv_5_his_`i' == ""
+            replace relationship_`i' = rv_5_his_`i' if rv_5_his_`i' != "" & rv_5_rel_`i' == ""
+            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' != "" & rv_5_his_`i' != "" & relationship_`i' == ""
+        }
+
+    /* 05. Reshape */
+        drop rv_5_rel_* rv_5_his_*
+        reshape long relationship_ coresidence_status_ psid_status_x_ psid_status_y_, i(ID ID_y) j(yr)
+
+    /* 06. Encode relationship */
+        * drop the most commonly recorded
+        drop relationship
+        * rename relationship in year correctly 
+        rename relationship_ relationship
+        drop if relationship == ""
+        g relationship_coded = ""
+        replace relationship_coded = "Other" if relationship == "00098" 
+        replace relationship_coded = "Spouse" if relationship == "00131" 
+        replace relationship_coded = "Spouse" if relationship == "00132" 
+        replace relationship_coded = "Spouse" if relationship == "00133" 
+        replace relationship_coded = "Spouse" if relationship == "00134" 
+        replace relationship_coded = "Spouse" if relationship == "00135" 
+        replace relationship_coded = "Spouse" if relationship == "00137" 
+        replace relationship_coded = "Spouse" if relationship == "00138" 
+        replace relationship_coded = "Spouse" if relationship == "00139" 
+        replace relationship_coded = "Spouse" if relationship == "00151" 
+        replace relationship_coded = "Spouse" if relationship == "00152" 
+        replace relationship_coded = "Spouse" if relationship == "00153" 
+        replace relationship_coded = "Spouse" if relationship == "00154" 
+        replace relationship_coded = "Spouse" if relationship == "00155" 
+        replace relationship_coded = "Spouse" if relationship == "00156" 
+        replace relationship_coded = "Spouse" if relationship == "00157" 
+        replace relationship_coded = "Spouse" if relationship == "00158" 
+        replace relationship_coded = "Spouse" if relationship == "00159" 
+        replace relationship_coded = "Spouse" if relationship == "00160" 
+        replace relationship_coded = "Spouse" if relationship == "00161" 
+        replace relationship_coded = "Spouse" if relationship == "00162" 
+        replace relationship_coded = "Spouse" if relationship == "00163" 
+        replace relationship_coded = "Spouse" if relationship == "00164" 
+        replace relationship_coded = "Spouse" if relationship == "00199" 
+        replace relationship_coded = "Sibling" if relationship == "00231" 
+        replace relationship_coded = "Sibling" if relationship == "00232" 
+        replace relationship_coded = "Sibling" if relationship == "00233" 
+        replace relationship_coded = "Sibling" if relationship == "00234" 
+        replace relationship_coded = "Sibling" if relationship == "00235" 
+        replace relationship_coded = "Sibling" if relationship == "00236" 
+        replace relationship_coded = "Sibling" if relationship == "00238" 
+        replace relationship_coded = "Sibling" if relationship == "00251" 
+        replace relationship_coded = "Sibling" if relationship == "00252" 
+        replace relationship_coded = "Sibling" if relationship == "00253" 
+        replace relationship_coded = "Sibling" if relationship == "00254" 
+        replace relationship_coded = "Sibling" if relationship == "00255" 
+        replace relationship_coded = "Sibling" if relationship == "00256" 
+        replace relationship_coded = "Sibling" if relationship == "00257" 
+        replace relationship_coded = "Sibling" if relationship == "00258" 
+        replace relationship_coded = "Sibling" if relationship == "00259" 
+        replace relationship_coded = "Sibling" if relationship == "00260" 
+        replace relationship_coded = "Sibling" if relationship == "00261" 
+        replace relationship_coded = "Sibling" if relationship == "00262" 
+        replace relationship_coded = "Sibling" if relationship == "00263" 
+        replace relationship_coded = "Sibling" if relationship == "00264" 
+        replace relationship_coded = "Sibling" if relationship == "00299" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00351" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00352" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00353" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00354" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00355" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00356" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00357" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00358" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00359" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00360" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00361" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00362" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00363" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00364" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00365" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00366" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00367" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00368" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00369" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00370" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00371" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00372" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00373" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00374" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00375" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00376" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00377" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00378" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00379" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00380" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00381" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00382" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00383" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00384" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00385" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00386" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00387" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00388" 
+        replace relationship_coded = "Sibling-in-law" if relationship == "00399" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00431" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00432" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00433" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00434" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00451" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00452" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00453" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00454" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00455" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00456" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00457" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00458" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00459" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00460" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00461" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00462" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00463" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00464" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00465" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00466" 
+        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00499" 
+        replace relationship_coded = "Sibling or cousin" if relationship == "00531" 
+        replace relationship_coded = "Sibling or cousin" if relationship == "00532" 
+        replace relationship_coded = "Sibling or cousin" if relationship == "00551" 
+        replace relationship_coded = "Sibling or cousin" if relationship == "00552" 
+        replace relationship_coded = "Cousin" if relationship == "00631" 
+        replace relationship_coded = "Cousin" if relationship == "00632" 
+        replace relationship_coded = "Cousin" if relationship == "00633" 
+        replace relationship_coded = "Cousin" if relationship == "00634" 
+        replace relationship_coded = "Cousin" if relationship == "00635" 
+        replace relationship_coded = "Cousin" if relationship == "00651" 
+        replace relationship_coded = "Cousin" if relationship == "00652" 
+        replace relationship_coded = "Cousin" if relationship == "00653" 
+        replace relationship_coded = "Cousin" if relationship == "00654" 
+        replace relationship_coded = "Cousin" if relationship == "00655" 
+        replace relationship_coded = "Cousin" if relationship == "00656" 
+        replace relationship_coded = "Cousin" if relationship == "00657" 
+        replace relationship_coded = "Cousin" if relationship == "00658" 
+        replace relationship_coded = "Cousin" if relationship == "00659" 
+        replace relationship_coded = "Cousin" if relationship == "00660" 
+        replace relationship_coded = "Cousin" if relationship == "00661" 
+        replace relationship_coded = "Cousin" if relationship == "00662" 
+        replace relationship_coded = "Cousin" if relationship == "00663" 
+        replace relationship_coded = "Cousin" if relationship == "00664" 
+        replace relationship_coded = "Cousin" if relationship == "00665" 
+        replace relationship_coded = "Cousin" if relationship == "00666" 
+        replace relationship_coded = "Cousin" if relationship == "00699" 
+        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00731" 
+        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00732" 
+        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00799" 
+        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00851" 
+        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00852" 
+        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00853" 
+        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00854" 
+        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00899" 
+        replace relationship_coded = "Cousin of spouse" if relationship == "00951" 
+        replace relationship_coded = "Cousin of spouse" if relationship == "00952" 
+        replace relationship_coded = "Cousin of spouse" if relationship == "00999" 
+        replace relationship_coded = "Parent of child-in-law" if relationship == "01031" 
+        replace relationship_coded = "Parent of child-in-law" if relationship == "01032" 
+        replace relationship_coded = "Parent of child-in-law" if relationship == "01099" 
+        replace relationship_coded = "Other" if relationship == "10098" 
+        replace relationship_coded = "Parent" if relationship == "10101" 
+        replace relationship_coded = "Parent" if relationship == "10102" 
+        replace relationship_coded = "Parent" if relationship == "10103" 
+        replace relationship_coded = "Parent" if relationship == "10104" 
+        replace relationship_coded = "Parent" if relationship == "10105" 
+        replace relationship_coded = "Parent" if relationship == "10106" 
+        replace relationship_coded = "Parent" if relationship == "10107" 
+        replace relationship_coded = "Parent" if relationship == "10108" 
+        replace relationship_coded = "Parent" if relationship == "10109" 
+        replace relationship_coded = "Parent" if relationship == "10110" 
+        replace relationship_coded = "Parent" if relationship == "10111" 
+        replace relationship_coded = "Parent" if relationship == "10112" 
+        replace relationship_coded = "Parent" if relationship == "10113" 
+        replace relationship_coded = "Parent" if relationship == "10114" 
+        replace relationship_coded = "Parent" if relationship == "10115" 
+        replace relationship_coded = "Parent" if relationship == "10116" 
+        replace relationship_coded = "Parent" if relationship == "10117" 
+        replace relationship_coded = "Parent" if relationship == "10118" 
+        replace relationship_coded = "Parent" if relationship == "10119" 
+        replace relationship_coded = "Parent" if relationship == "10199" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10201" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10202" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10203" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10204" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10205" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10206" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10207" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10208" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10209" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10210" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10211" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10212" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10213" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10215" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10216" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10217" 
+        replace relationship_coded = "Parent-in-law" if relationship == "10299" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10301" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10302" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10303" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10304" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10305" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10306" 
+        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10307" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10401" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10402" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10403" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10404" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10405" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10406" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10407" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10408" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10409" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10411" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10412" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10413" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10414" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10415" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10416" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10417" 
+        replace relationship_coded = "Aunt/uncle" if relationship == "10499" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10501" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10502" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10503" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10504" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10505" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10506" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10507" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10509" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10510" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10511" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10513" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10514" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10515" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10516" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10519" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10520" 
+        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10599" 
+        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10601" 
+        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10602" 
+        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10603" 
+        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10699" 
+        replace relationship_coded = "Spouse of aunt/uncle of spouse" if relationship == "10701" 
+        replace relationship_coded = "Spouse of aunt/uncle of spouse" if relationship == "10799" 
+        replace relationship_coded = "Cousin of parent" if relationship == "10801" 
+        replace relationship_coded = "Cousin of parent" if relationship == "10802" 
+        replace relationship_coded = "Cousin of parent" if relationship == "10899" 
+        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10901" 
+        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10902" 
+        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10999" 
+        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11001" 
+        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11002" 
+        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11099" 
+        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11101" 
+        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11102" 
+        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11199" 
+        replace relationship_coded = "Grandparent of child-in-law" if relationship == "11299" 
+        replace relationship_coded = "Other" if relationship == "15098" 
+        replace relationship_coded = "Child" if relationship == "15101" 
+        replace relationship_coded = "Child" if relationship == "15102" 
+        replace relationship_coded = "Child" if relationship == "15103" 
+        replace relationship_coded = "Child" if relationship == "15104" 
+        replace relationship_coded = "Child" if relationship == "15105" 
+        replace relationship_coded = "Child" if relationship == "15106" 
+        replace relationship_coded = "Child" if relationship == "15107" 
+        replace relationship_coded = "Child" if relationship == "15108" 
+        replace relationship_coded = "Child" if relationship == "15109" 
+        replace relationship_coded = "Child" if relationship == "15110" 
+        replace relationship_coded = "Child" if relationship == "15111" 
+        replace relationship_coded = "Child" if relationship == "15112" 
+        replace relationship_coded = "Child" if relationship == "15113" 
+        replace relationship_coded = "Child" if relationship == "15114" 
+        replace relationship_coded = "Child" if relationship == "15115" 
+        replace relationship_coded = "Child" if relationship == "15116" 
+        replace relationship_coded = "Child" if relationship == "15117" 
+        replace relationship_coded = "Child" if relationship == "15118" 
+        replace relationship_coded = "Child" if relationship == "15119" 
+        replace relationship_coded = "Child" if relationship == "15199" 
+        replace relationship_coded = "Child-in-law" if relationship == "15201" 
+        replace relationship_coded = "Child-in-law" if relationship == "15202" 
+        replace relationship_coded = "Child-in-law" if relationship == "15203" 
+        replace relationship_coded = "Child-in-law" if relationship == "15204" 
+        replace relationship_coded = "Child-in-law" if relationship == "15205" 
+        replace relationship_coded = "Child-in-law" if relationship == "15206" 
+        replace relationship_coded = "Child-in-law" if relationship == "15207" 
+        replace relationship_coded = "Child-in-law" if relationship == "15208" 
+        replace relationship_coded = "Child-in-law" if relationship == "15209" 
+        replace relationship_coded = "Child-in-law" if relationship == "15210" 
+        replace relationship_coded = "Child-in-law" if relationship == "15211" 
+        replace relationship_coded = "Child-in-law" if relationship == "15212" 
+        replace relationship_coded = "Child-in-law" if relationship == "15213" 
+        replace relationship_coded = "Child-in-law" if relationship == "15215" 
+        replace relationship_coded = "Child-in-law" if relationship == "15216" 
+        replace relationship_coded = "Child-in-law" if relationship == "15217" 
+        replace relationship_coded = "Child-in-law" if relationship == "15299" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15301" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15302" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15303" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15304" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15305" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15306" 
+        replace relationship_coded = "Child or Niece/nephew" if relationship == "15307" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15401" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15402" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15403" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15404" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15405" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15406" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15407" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15408" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15409" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15411" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15412" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15413" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15414" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15415" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15416" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15417" 
+        replace relationship_coded = "Niece/nephew" if relationship == "15499" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15501" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15502" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15503" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15504" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15505" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15506" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15507" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15509" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15510" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15511" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15513" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15514" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15515" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15516" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15519" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15520" 
+        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15599" 
+        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15601" 
+        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15602" 
+        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15603" 
+        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15699" 
+        replace relationship_coded = "Spouse of niece/nephew of spouse" if relationship == "15701" 
+        replace relationship_coded = "Spouse of niece/nephew of spouse" if relationship == "15799" 
+        replace relationship_coded = "Child of cousin" if relationship == "15801" 
+        replace relationship_coded = "Child of cousin" if relationship == "15802" 
+        replace relationship_coded = "Child of cousin" if relationship == "15899" 
+        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15901" 
+        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15902" 
+        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15999" 
+        replace relationship_coded = "Sibling of child-in-law" if relationship == "16001" 
+        replace relationship_coded = "Sibling of child-in-law" if relationship == "16002" 
+        replace relationship_coded = "Sibling of child-in-law" if relationship == "16099" 
+        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16101" 
+        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16102" 
+        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16199" 
+        replace relationship_coded = "Parent-in-law of grandchild" if relationship == "16299" 
+        replace relationship_coded = "Grandparent" if relationship == "20098" 
+        replace relationship_coded = "Grandparent" if relationship == "20101" 
+        replace relationship_coded = "Grandparent" if relationship == "20102" 
+        replace relationship_coded = "Grandparent" if relationship == "20103" 
+        replace relationship_coded = "Grandparent" if relationship == "20104" 
+        replace relationship_coded = "Grandparent" if relationship == "20105" 
+        replace relationship_coded = "Grandparent" if relationship == "20106" 
+        replace relationship_coded = "Grandparent" if relationship == "20107" 
+        replace relationship_coded = "Grandparent" if relationship == "20108" 
+        replace relationship_coded = "Grandparent" if relationship == "20109" 
+        replace relationship_coded = "Grandparent" if relationship == "20110" 
+        replace relationship_coded = "Grandparent" if relationship == "20111" 
+        replace relationship_coded = "Grandparent" if relationship == "20112" 
+        replace relationship_coded = "Grandparent" if relationship == "20113" 
+        replace relationship_coded = "Grandparent" if relationship == "20114" 
+        replace relationship_coded = "Grandparent" if relationship == "20199" 
+        replace relationship_coded = "Grandparent of spouse" if relationship == "20201" 
+        replace relationship_coded = "Grandparent of spouse" if relationship == "20202" 
+        replace relationship_coded = "Grandparent of spouse" if relationship == "20203" 
+        replace relationship_coded = "Grandparent of spouse" if relationship == "20299" 
+        replace relationship_coded = "Grandparent or Grandaunt/uncle" if relationship == "20301" 
+        replace relationship_coded = "Grandaunt/uncle" if relationship == "20401" 
+        replace relationship_coded = "Grandaunt/uncle" if relationship == "20402" 
+        replace relationship_coded = "Grandaunt/uncle" if relationship == "20499" 
+        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20501" 
+        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20502" 
+        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20503" 
+        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20504" 
+        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20505" 
+        replace relationship_coded = "Great-grandparent" if relationship == "20601" 
+        replace relationship_coded = "Great-grandparent" if relationship == "20602" 
+        replace relationship_coded = "Great-grandparent" if relationship == "20603" 
+        replace relationship_coded = "Great-grandparent" if relationship == "20604" 
+        replace relationship_coded = "Great-grandparent" if relationship == "20699" 
+        replace relationship_coded = "Great-great-grandparent" if relationship == "20799" 
+        replace relationship_coded = "Great-grandaunt/uncle" if relationship == "20899" 
+        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20901" 
+        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20902" 
+        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20903" 
+        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20904" 
+        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20999" 
+        replace relationship_coded = "Grandparent of spouse of sibling" if relationship == "21099" 
+        replace relationship_coded = "Great-grandparent of spouse" if relationship == "21199" 
+        replace relationship_coded = "Grandaunt/uncle of spouse" if relationship == "21299" 
+        replace relationship_coded = "Grandchild" if relationship == "25098" 
+        replace relationship_coded = "Grandchild" if relationship == "25101" 
+        replace relationship_coded = "Grandchild" if relationship == "25102" 
+        replace relationship_coded = "Grandchild" if relationship == "25103" 
+        replace relationship_coded = "Grandchild" if relationship == "25104" 
+        replace relationship_coded = "Grandchild" if relationship == "25105" 
+        replace relationship_coded = "Grandchild" if relationship == "25106" 
+        replace relationship_coded = "Grandchild" if relationship == "25107" 
+        replace relationship_coded = "Grandchild" if relationship == "25108" 
+        replace relationship_coded = "Grandchild" if relationship == "25109" 
+        replace relationship_coded = "Grandchild" if relationship == "25110" 
+        replace relationship_coded = "Grandchild" if relationship == "25111" 
+        replace relationship_coded = "Grandchild" if relationship == "25112" 
+        replace relationship_coded = "Grandchild" if relationship == "25113" 
+        replace relationship_coded = "Grandchild" if relationship == "25114" 
+        replace relationship_coded = "Grandchild" if relationship == "25199" 
+        replace relationship_coded = "Spouse of grandchild" if relationship == "25201" 
+        replace relationship_coded = "Spouse of grandchild" if relationship == "25202" 
+        replace relationship_coded = "Spouse of grandchild" if relationship == "25203" 
+        replace relationship_coded = "Spouse of grandchild" if relationship == "25299" 
+        replace relationship_coded = "Grandchild or Grandniece/nephew" if relationship == "25301" 
+        replace relationship_coded = "Grandniece/nephew" if relationship == "25401" 
+        replace relationship_coded = "Grandniece/nephew" if relationship == "25402" 
+        replace relationship_coded = "Grandniece/nephew" if relationship == "25499" 
+        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25501" 
+        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25502" 
+        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25503" 
+        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25504" 
+        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25505" 
+        replace relationship_coded = "Great-grandchild" if relationship == "25601" 
+        replace relationship_coded = "Great-grandchild" if relationship == "25602" 
+        replace relationship_coded = "Great-grandchild" if relationship == "25603" 
+        replace relationship_coded = "Great-grandchild" if relationship == "25604" 
+        replace relationship_coded = "Great-grandchild" if relationship == "25699" 
+        replace relationship_coded = "Great-great-grandchild" if relationship == "25799" 
+        replace relationship_coded = "Great-grandniece/nephew" if relationship == "25899" 
+        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25901" 
+        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25902" 
+        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25903" 
+        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25904" 
+        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25999" 
+        replace relationship_coded = "Sibling of spouse of grandchild" if relationship == "26099" 
+        replace relationship_coded = "Spouse of great-grandchild" if relationship == "26199" 
+        replace relationship_coded = "Spouse of grandniece/nephew" if relationship == "26299" 
+        replace relationship_coded = "Other relative" if relationship == "99731" 
+        replace relationship_coded = "Other non-relative" if relationship == "99831" 
+        label var relationship_coded "Relationship btwn person X and Y"
+
+        * check 00237 
+            
+    /* 07. Operate from person X's perspective --> drop years when non response */
+        drop if psid_status_x_ == "5"
+        drop if psid_status_x_ == "2"
+        drop if psid_status_x_ == "3"
+        drop if psid_status_x_ == "4"
+        drop person_number person_number_y psid_status_x_ relationship
+        
+    /* 08. Reshape again ... */
+        order ID yr
+        sort ID yr
+        preserve
+        reshape wide  relationship_coded coresidence_status, i(ID yr) j(ID_y)
+        sort ID yr ID_y
+        bysort ID yr: g index = _n
+        isid ID yr index
+        reshape wide ID_y relationship_coded coresidence_status psid_status_y_ rel_5_changed birth_year_y sex_y, i(ID yr) j(index)
+
+    /* 09. SAVE */
+        save "$output/relationships_roster_.dta", replace
+}
+
+
+/* ------------------------------------- */
+* PART IV: Merge three datasets: 
 * 1. Long data: _psid_long.dta
 * 2. Long data with hhr changes: _hhr.csv
 * 3. Panel data of heads: _heads_panel.dta
 /* ------------------------------------- */
 
-if `part3' == 1{
+if `part4' == 1{
     /* 01. Load _hhr.csv */
         import delimited "$output/_hhr.csv", clear
         drop is_first is_last
@@ -1902,11 +1958,13 @@ if `part3' == 1{
     }
 
 
+
+
 /* ------------------------------------- */
-* PART IV: Clean save
+* PART V: Clean save
 /* ------------------------------------- */
 
-if `part4' == 1{
+if `part5' == 1{
     /* 01. Clean */
     sort fam year fam_id_ ID
     * Sarah: go in and add labels. 
@@ -2014,7 +2072,10 @@ if `part4' == 1{
 }
 
 
-
+/* ------------------------------------- */
+* PART VI: Tables
+/* ------------------------------------- */
+if `part6' == 1{
 /* 07. Make Tables - May 28th meeting for 29th */
 
     drop hhr ages_hhr rel_hhr siblings parents grandparents hhr_prev ages_prev rel_prev ids_left ids_came ages_left ages_came rel_left rel_came sib_ages_came sib_ages_left
@@ -2113,8 +2174,7 @@ if `part4' == 1{
         label var birth_cohort "Birth Cohort of Individual"
 
 
-
-
+}
 
 
 
@@ -3554,3 +3614,76 @@ if `part3' == 1{
 
 
 
+
+  * Compress yearly relationship sequence into distinct states and change years.
+        * max_changes = 17 implies up to 18 distinct relationships (rel_1 ... rel_18).
+        * in reality, the maximum number of changes is only 5, so I can hardcode that.
+        local max_changes = 5
+
+        forvalues j = 1/`=`max_changes' + 1' {
+            g str5 rel_`j' = ""
+        }
+        forvalues j = 1/`max_changes' {
+            g int change_`j' = .
+        }
+        g str5 _prev_rel = ""
+        g byte _rel_slot = 0
+        g byte _new_rel = 0
+
+        forvalues y = 1968/1985 {
+            replace _new_rel = (rv_5_rel_`y' != "" & rv_5_rel_`y' != _prev_rel)
+            replace _rel_slot = _rel_slot + 1 if _new_rel == 1
+
+            forvalues j = 1/`=`max_changes' + 1' {
+                replace rel_`j' = rv_5_rel_`y' if _new_rel == 1 & _rel_slot == `j'
+            }
+
+            forvalues j = 1/`max_changes' {
+                replace change_`j' = `y' if _new_rel == 1 & _rel_slot == `=`j' + 1' & missing(change_`j')
+            }
+
+            replace _prev_rel = rv_5_rel_`y' if _new_rel == 1
+        }
+
+        drop _prev_rel _rel_slot _new_rel
+
+
+    /* 08f. Repeat for rel_his */
+        local max_changes = 5
+
+        forvalues j = 1/`=`max_changes' + 1' {
+            g str5 rel2_`j' = ""
+        }
+        forvalues j = 1/`max_changes' {
+            g int change2_`j' = .
+        }
+
+        g str5 _prev_rel = ""
+        g byte _rel_slot = 0
+        g byte _new_rel = 0
+
+        forvalues y = 1968/1985 {
+            replace _new_rel = (rv_5_his_`y' != "" & rv_5_his_`y' != _prev_rel)
+            replace _rel_slot = _rel_slot + 1 if _new_rel == 1
+
+            forvalues j = 1/`=`max_changes' + 1' {
+                replace rel2_`j' = rv_5_his_`y' if _new_rel == 1 & _rel_slot == `j'
+            }
+
+            forvalues j = 1/`max_changes' {
+                replace change2_`j' = `y' if _new_rel == 1 & _rel_slot == `=`j' + 1' & missing(change2_`j')
+            }
+
+            replace _prev_rel = rv_5_his_`y' if _new_rel == 1
+        }
+        drop _prev_rel _rel_slot _new_rel
+
+
+    /* 08e. Standardize */
+        replace rel2_1 = "" if rel2_1 == rel_1
+        replace rel2_2 = "" if rel2_2 == rel_2
+        replace rel2_3 = "" if rel2_3 == rel_3
+        replace rel2_4 = "" if rel2_4 == rel_4
+        replace rel2_5 = "" if rel2_5 == rel_5
+
+        replace rel_1 = relationship if rel_5_changed == "1"
