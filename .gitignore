@@ -85,3 +85,4 @@ _output/*.dta
 _output/_hhr.csv
 _raw/
 _output/
+*.rtf
