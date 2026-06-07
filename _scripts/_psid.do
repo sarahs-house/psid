@@ -2225,3 +2225,5 @@ if `part6' == 1{
     label var birth_cohort "Birth Cohort of Individual"
 
 }
+
+
