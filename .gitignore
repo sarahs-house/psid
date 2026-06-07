@@ -83,3 +83,5 @@ _archive/_raw/85relhis/85RELHIS.DAT
 _raw/85relhis/85RELHIS.DAT
 _output/*.dta
 _output/_hhr.csv
+_raw/
+_output/
