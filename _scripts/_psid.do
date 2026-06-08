@@ -25,9 +25,11 @@ Part III: Construction of family rosters
 Part IV: Merging of data sets
 Part V: Cleaning and output for various deliverables 
 
-To do June 7, 2026: 
+To do June 8, 2026: 
 - pull relevant tables
+- see what's going on with dob and birth_cohort for sample B 
 - write a little about cases where RP becomes wife/husband or self. (e.g., move out at 16)
+
 
 Done June 7, 2026: 
 - renamed sample B sample A
@@ -38,6 +40,7 @@ Questions/overall to do:
 - write up logic for hhr, ages_hhr, rel_hhr
 - how granular of relationships do we care about? --> using fims vs. 1985 relhist, etc. 
     - in _hhr, want something like "family adult came, family adult left, other adult came/left, etc."
+- write up workflow & update readmes 
 
 */
 
@@ -2181,10 +2184,40 @@ if `part5' == 1{
         replace who_is_rp_C = "Other" if head_rel_ == 48 | head_rel_ == 83 | head_rel_ == 88
         label var who_is_rp_C "Who is R to Reference Person - Coarsest"
 
-    /* 08. Clean up */
-        drop rel_to_head why_nonresponse_ fu_new_head
+    /* 08. Parent race vs. other RP race */
+        g parent_self_race = rp_race if who_is_rp_A == "Parent" | who_is_rp_A == "Self"
+        label var parent_self_race "RP Race is Race of Self or Parent"
 
-    /* 09. Save */
+        g relative_race = rp_race if who_is_rp_C == "Relative" | who_is_rp_A == "Self"
+        label var relative_race "RP Race is Race of Biological Relative or Self"
+
+    /* 09. Clean up */
+        drop rel_to_head why_nonresponse_ fu_new_head
+        decode sex, g(sex1)
+        drop sex
+        rename sex1 sex
+        replace og_1968_family = 0 if og_1968_family == . 
+        replace imm_latino_family = 0 if imm_latino_family == .
+
+    /* 10. Birth year */
+        g birth_year = year - age_
+        egen min_birth_year = min(birth_year), by(ID)
+        replace birth_year = min_birth_year
+        drop min_birth_year
+        label var birth_year "Birth Year of Individual"
+
+    /* 11. Birth Cohort */
+        g birth_cohort = "pre 1955" if birth_year < 1955
+        replace birth_cohort = "1955-1965" if birth_year >= 1955 & birth_year < 1965
+        replace birth_cohort = "1965-1975" if birth_year >= 1965 & birth_year < 1975
+        replace birth_cohort = "1975-1985" if birth_year >= 1975 & birth_year < 1985
+        replace birth_cohort = "1985-1995" if birth_year >= 1985 & birth_year < 1995
+        replace birth_cohort = "1995-2005" if birth_year >= 1995 & birth_year < 2005
+        replace birth_cohort = "2005-2015" if birth_year >= 2005 & birth_year < 2015
+        replace birth_cohort = "after 2015" if birth_year >= 2015
+        label var birth_cohort "Birth Cohort of Individual"
+
+    /* 12. Save */
         save "$output/_psid_analytic_sample.dta", replace
 
 }
@@ -2194,35 +2227,89 @@ if `part5' == 1{
 /* ------------------------------------- */
 
 if `part6' == 1{
-    /* 01. Make Tables - June 3, 2026 for meeting June 7, 2026 */
-        decode sex, g(sex1)
-        drop sex
-        rename sex1 sex
-        replace og_1968_family = 0 if og_1968_family == . 
-        replace imm_latino_family = 0 if imm_latino_family == .
-        g birth_year = year - age_
 
-    /* 02. TO DO: Parent race vs. other RP race */
+    use "$output/_psid_analytic_sample.dta", clear
 
-    /* 03. Collapse */
+    /* 00. Collapse & encode */
         local maxvars par_came par_left gpar_came gpar_left hhr_change hhr_in hhr_out adult_came adult_left child_came child_left sib_came sib_left og_1968_family imm_latino_family birth_year
         local minvars age_first_observed
-        local firstnm rp_race head_sex who_is_rp
+        local firstnm rp_race head_sex parent_self_race relative_race birth_cohort
         local lastnm sex rp_education_A rp_education_B
         local mean waves_17_under waves_17_skipadjusted sample_indiv_N sample_indiv_A sample_indiv_B 
 
         collapse (max) `maxvars' (min) `minvars' (first) `firstnm' (last) `lastnm' (mean) `mean', by(ID)
 
-    /* 04. Birth Cohort */
-    g birth_cohort = "pre 1955" if birth_year < 1955
-    replace birth_cohort = "1955-1965" if birth_year >= 1955 & birth_year < 1965
-    replace birth_cohort = "1965-1975" if birth_year >= 1965 & birth_year < 1975
-    replace birth_cohort = "1975-1985" if birth_year >= 1975 & birth_year < 1985
-    replace birth_cohort = "1985-1995" if birth_year >= 1985 & birth_year < 1995
-    replace birth_cohort = "1995-2005" if birth_year >= 1995 & birth_year < 2005
-    replace birth_cohort = "2005-2015" if birth_year >= 2005 & birth_year < 2015
-    replace birth_cohort = "after 2015" if birth_year >= 2015
-    label var birth_cohort "Birth Cohort of Individual"
+        replace sex = "Unknown" if sex == "NA"
+
+        label define sexlabel 1 "Male" 2 "Female" 3 "Unknown"
+        encode sex, g(sex1) label(sexlabel)
+
+        label define racelabel 1 "White" 2 "Black" 3 "Hispanic" 4 "Other" 5 "Unknown"
+        encode rp_race, g(rp_race1) label(racelabel)
+
+        label define educationlabel 1 "No College Degree" 2 "College Degree or More" 3 "Unknown"
+        encode rp_education_B, g(rp_education_B1) label(educationlabel)
+
+        label define birthcohortlabel 1 "pre 1955" 2 "1955-1965" 3 "1965-1975" 4 "1975-1985" 5 "1985-1995" 6 "1995-2005" 7 "2005-2015" 8 "after 2015"
+        encode birth_cohort, g(birth_cohort1) label(birthcohortlabel)
+
+        label var sex1 "Sex"
+        label var rp_race1 "Race of Reference Person"
+        label var rp_education_B1 "Education of Reference Person"
+        label var birth_cohort1 "Birth Cohort"
+        label var birth_year "Birth Year"
+
+    /* 00. Initialize folder for today's date & version */
+        local today = string(date(c(current_date), "DMY"), "%tdMonth-NN-CCYY")
+        local i = 1
+        local todayversion = "`today'"+"-v`i'"
+        capture mkdir "$output/_tables/`todayversion'"
+
+
+    /* 01. Table 1. Descriptive Statistics for Samples A, B, and N. 
+        Sex, rp race, rp education, birth year, and birth cohort */
+        capture restore
+        preserve
+        drop if sample_indiv_A == 0
+        /* 01a. Sample A */
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            collect export "$output/_tables/`todayversion'/table1_A.tex", replace
+
+        restore
+        preserve
+        drop if sample_indiv_B == 0
+        /* 01b. Sample B */
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            collect export "$output/_tables/`todayversion'/table1_B.tex", replace
+
+        restore
+        preserve
+        drop if sample_indiv_N == 0
+        /* 01c. Sample N */
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            collect export "$output/_tables/`todayversion'/table1_N.tex", replace
+
+    /* 02. Table 2. */
+
+
+    /* 03. Table 3. */
+
+    /* 04. Table 4. */
+
+    /* 05. Table 5. */
+
+    /* 06. Table 6. */
+
+    /* 07. Table 7. */
+
+    /* 08. Table 8. */
+
+    /* 09. Table 9. */
+
+    /* 10. Table 10. */
+
+
+
 
 }
 
