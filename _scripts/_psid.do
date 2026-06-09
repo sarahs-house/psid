@@ -27,20 +27,32 @@ Part V: Cleaning and output for various deliverables
 
 To do June 8, 2026: 
 - pull relevant tables
+- weights
 - see what's going on with dob and birth_cohort for sample B 
 - write a little about cases where RP becomes wife/husband or self. (e.g., move out at 16)
-
 
 Done June 7, 2026: 
 - renamed sample B sample A
 - dropped all funny people
 
 Questions/overall to do: 
+- Rule for sample A is currently # of waves observed before 18 = 18. But some ppl are observed at one age for more than one 
+wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at age 1? Same for the other edge. Condition on 17?
+    - e.g: 
+    years observed (age): 1968 (2), 1969 (3), 1970 (4), 1971 (5), 1972 (6), 1973 (7), 1974 (8), 1975 (9), 1976 (10), 1977 (11), 1978 (12), 1979 (13), 1980 (14), 1981 (15), 1982 (16), 1983 (17), 1984 (17)
+    years observed (age): 2001 (1), 2003 (3), 2005 (5), 2007 (7), 2009 (9), 2011 (11), 2013 (13), 2015 (15), 2017 (16)
+
+- check age-first-observed for same reason
+
+- ever race of relative reported
 - why do some people have no age data ever observed? same with marital status? 
 - write up logic for hhr, ages_hhr, rel_hhr
 - how granular of relationships do we care about? --> using fims vs. 1985 relhist, etc. 
     - in _hhr, want something like "family adult came, family adult left, other adult came/left, etc."
 - write up workflow & update readmes 
+- need adult_sib change, relative vs. non-relative change
+
+
 
 */
 
@@ -65,10 +77,11 @@ Questions/overall to do:
     
     * Switches
     local part1 0
+    local part1a 1
     local part2 0
     local part3 0
-    local part4 1
-    local part5 1
+    local part4 0
+    local part5 0
     local part6 0
 
 
@@ -294,6 +307,10 @@ if `part1' == 1{
         */
 
         replace analytic_sample_indiv = 0 if ID == 1830184 | ID == 5535171 | ID == 5129170 | ID == 5349174 | ID == 5876003 | ID == 8190002 | ID == 9045004 | ID == 1841003 | ID == 5128182 | ID == 5442171 | ID == 5449170 | ID == 9296170
+        g erroneousperson = 1 if ID == 1830184 | ID == 5535171 | ID == 5129170 | ID == 5349174 | ID == 5876003 | ID == 8190002 | ID == 9045004 | ID == 1841003 | ID == 5128182 | ID == 5442171 | ID == 5449170 | ID == 9296170
+        replace erroneousperson = 0 if erroneousperson == .
+        label var erroneousperson "Binary: Person with age reporting error, dropped from sample"
+        * n = 12
 
     /* 10. Flag Analytic Sample Families & Drop unqualified families 
         * 5,565 families
@@ -342,25 +359,24 @@ if `part1' == 1{
         Comparing samples A and B to sample N allows us to understand what is lost when we require more waves of observation in childhood.
 
         Sample A: 8,823 children; 55,924 family members; 2,047 families
-        Sample B: 38,430 children; 77,283 family members;  4,987 families
-        Sample N: 45,056 children; 80,125 family members; 5,565 families
-
+        Sample B: 38,425 children; 77,283 family members;  4,987 families
+        Sample N: 45,045 children; 80,125 family members; 5,565 families
         */
 
-        g sample_indiv_N = 1 if waves_17_under >= 1
-        replace sample_indiv_N = 0 if waves_17_under == 0
+        g sample_indiv_N = 1 if waves_17_under >= 1 & analytic_sample_indiv == 1
+        replace sample_indiv_N = 0 if waves_17_under == 0 | analytic_sample_indiv == 0
         label var sample_indiv_N "Binary: In Sample N (at least one wave before age 18)"
         egen sample_family_N = max(sample_indiv_N), by(fam)
         label var sample_family_N "Binary: Family with at least one child in Sample N"
 
-        g sample_indiv_A= 1 if waves_17_skipadjusted >= 17
-        replace sample_indiv_A = 0 if waves_17_skipadjusted < 17
+        g sample_indiv_A = 1 if waves_17_skipadjusted >= 17 & analytic_sample_indiv == 1
+        replace sample_indiv_A = 0 if waves_17_skipadjusted < 17 | analytic_sample_indiv == 0
         label var sample_indiv_A "Binary: In Sample A (observed in all waves from birth to age 18)"
         egen sample_family_A = max(sample_indiv_A), by(fam)
         label var sample_family_A "Binary: Family with at least one child in Sample A"
 
-        g sample_indiv_B = 1 if waves_17_under >= 2
-        replace sample_indiv_B = 0 if waves_17_under < 2
+        g sample_indiv_B = 1 if waves_17_under >= 2 & analytic_sample_indiv == 1
+        replace sample_indiv_B = 0 if waves_17_under < 2 | analytic_sample_indiv == 0
         label var sample_indiv_B "Binary: In Sample B (at least two waves before age 18)"
         egen sample_family_B = max(sample_indiv_B), by(fam)
         label var sample_family_B "Binary: Family with at least one child in Sample B"
@@ -463,7 +479,8 @@ if `part1' == 1{
         * Variable recording the relationship between the individual and the Head/Reference Person in each wave. 
         = 0 if the person is not observed in that year. 
         */ 
-        local head_rel 1968 ER30003 1969 ER30022 1970 ER30045 1971 ER30069 1972 ER30093	1973 ER30119 1974 ER30140 1975 ER30162 1976 ER30190	1977 ER30219 1978 ER30248 1979 ER30285 1980 ER30315 1981 ER30345 1982 ER30375 1983 ER30401 1984 ER30431 1985 ER30465 1986 ER30500 1987 ER30537 1988 ER30572 1989 ER30608 1990 ER30644 1991 ER30691 1992 ER30735 1993 ER30808 1994 ER33103 1995 ER33203 1996 ER33303	1997 ER33403 1999 ER33503 2001 ER33603 2003 ER33703 2005 ER33803 2007 ER33903 2009 ER34003 2011 ER34103 2013 ER34203 2015 ER34303 2017 ER34503 2019 ER34703 2021 ER34903 2023 ER35103
+        local head_rel 1968 ER30003 1969 ER30022 1970 ER30045 1971 ER30069 1972 ER30093 1973 ER30119 1974 ER30140 1975 ER30162 1976 ER30190 1977 ER30219 1978 ER30248 1979 ER30285 1980 ER30315 1981 ER30345 1982 ER30375 1983 ER30401 1984 ER30431 1985 ER30465 1986 ER30500 1987 ER30537 1988 ER30572 1989 ER30608 1990 ER30644 1991 ER30691 1992 ER30735 1993 ER30808 1994 ER33103 1995 ER33203 1996 ER33303 1997 ER33403 1999 ER33503 2001 ER33603 2003 ER33703 2005 ER33803 2007 ER33903 2009 ER34003 2011 ER34103 2013 ER34203 2015 ER34303 2017 ER34503 2019 ER34703 2021 ER34903 2023 ER35103
+
         forvalues m = 1968/1997 {
             g head_rel_`m' = .
             label var head_rel_`m' "Relationship to head in year `m'"
@@ -546,28 +563,27 @@ if `part1' == 1{
     /* 20. Drop rows when person not interviewed PROVIDED IT IS NOT THE OBSERVATION
         AFTER THE LAST OBSERVATION FOR THAT PERSON 
         keep one after each person's last observation to understand why they attrited */
-
+        
+        * flag the last row for each person (people who don't earn last obs are from fims but literally no other info on them - n = 373)
         sort ID year 
-        bysort ID (year): replace in_ = 2 if in_ == 0 & in_[_n-1] == 1 & in_[_n+1]  == 0        
-        drop if in_ == 0
-        label var in_ "Present in year (1) or year after last observation (2)"
+        by ID (year): g lastobs = 1 if in_ == 0 & in_[_n-1] == 1
+        replace lastobs = 1 if in_ == 1 & year == 2023
+        replace lastobs = 0 if lastobs == . & in_ == 1
+        drop if lastobs == . 
 
-        * 866,035 rows with in_ == 1 (person observed in that year)
-        * 62,463 rows with in_ == 2 (person not observed in that year but observed in the previous year and not observed in the next year, so this is the year after their last observation)
-
-    /* 21. Use attrit rows to develop why left survey variable and year left survey variable 
-        to do later: something is weird with year_left_survey, aka in_ is not 2 for years 2021, 2023. fix this. */
-        egen year_left_survey = max(year), by(ID)
-        g why_left_survey = why_nonresponse_ if in_ == 2
+    /* 21. Use attrit rows to develop why left survey variable and year left survey variable */
+        g why_left_survey = why_nonresponse_ if lastobs == 1
+        replace why_left_survey = 2023 if lastobs == 1 & year == 2023
         replace why_left_survey = 0 if why_left_survey == .
         egen why_left_survey_max = max(why_left_survey), by(ID)
         drop why_left_survey
         rename why_left_survey_max why_left_survey
         label var why_left_survey "Why left survey, based on attrit row"
+        egen year_left_survey = max(year), by(ID)
         label var year_left_survey "Year left survey, based on attrit row"
 
     /* 22. DROP ATTRIT ROWS */
-        drop if in_ == 2 
+        drop if in_ == 0 
         * N = 866,035 person-year observations with in_ == 1 (person observed in that year)
     
     /* 23. Household Roster */
@@ -580,13 +596,12 @@ if `part1' == 1{
         * count if hhr == "" & ID == ID[_n+1] --> 0
 
         g str_id = string(ID)
-        bysort fam year fam_id_ (ID): replace hhr = str_id[1]
-        bysort fam year fam_id_ (ID): replace hhr = hhr[_n-1] + " " + str_id if _n > 1
-        bysort fam year fam_id_ (ID): replace hhr = hhr[_N]
+        bysort year fam_id_ (ID): replace hhr = str_id[1]
+        bysort year fam_id_ (ID): replace hhr = hhr[_n-1] + " " + str_id if _n > 1
+        bysort year fam_id_ (ID): replace hhr = hhr[_N]
         drop str_id
-        replace hhr = "" if in_ == 2
 
-        * without self
+        * without self 
         g hhr_padded = " " + hhr + " "
         g hhr_no_self = strtrim(itrim(subinstr(hhr_padded, " " + string(ID) + " ", " ", .)))
         drop hhr_padded
@@ -597,9 +612,9 @@ if `part1' == 1{
         sort fam year fam_id_ ID
         g str_age = string(age_)
         replace str_age = "" if str_age == "."
-        bysort fam year fam_id_ (ID): replace ages_hhr = str_age[1]
-        bysort fam year fam_id_ (ID): replace ages_hhr = ages_hhr[_n-1] + " " + str_age if _n > 1
-        bysort fam year fam_id_ (ID): replace ages_hhr = ages_hhr[_N]
+        bysort year fam_id_ (ID): replace ages_hhr = str_age[1]
+        bysort year fam_id_ (ID): replace ages_hhr = ages_hhr[_n-1] + " " + str_age if _n > 1
+        bysort year fam_id_ (ID): replace ages_hhr = ages_hhr[_N]
         drop str_age
         replace ages_hhr = "" if in_ == 2
         label var ages_hhr "Ages of family members in the same family-year"
@@ -609,14 +624,13 @@ if `part1' == 1{
         drop ages_padded
         label var ages_no_self "Ages without self: Ages of family members in the same family-year excluding self"
 
-
     /* 25. Relationships Roster */
         g rel_hhr = ""
         sort fam year fam_id_ ID
         g str_rel = string(head_rel_)
-        bysort fam year fam_id_ (ID): replace rel_hhr = str_rel[1]
-        bysort fam year fam_id_ (ID): replace rel_hhr = rel_hhr[_n-1] + " " + str_rel if _n > 1
-        bysort fam year fam_id_ (ID): replace rel_hhr = rel_hhr[_N]
+        bysort year fam_id_ (ID): replace rel_hhr = str_rel[1]
+        bysort year fam_id_ (ID): replace rel_hhr = rel_hhr[_n-1] + " " + str_rel if _n > 1
+        bysort year fam_id_ (ID): replace rel_hhr = rel_hhr[_N]
         drop str_rel
         replace rel_hhr = "" if in_ == 2
 
@@ -686,15 +700,110 @@ if `part1' == 1{
             keep `ids' `rosters' `lists' `sample' `attrit'
 
             order fam ID year hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list age_ sample_indiv_N sample_indiv_A sample_indiv_B  
+
             sort fam ID year
     
             save "${output}/_psid_long_lean.dta", replace
 }
 
 /* ------------------------------------- */
-* PART IA: RUN _PSID_LONG_LEAN.DTA THROUGH 
+* PART IA: Family Matrix
+/* ------------------------------------- */
+
+if `part1a' == 1{
+    /* 01. Input and clean family matrix */
+            use "${raw}/MX23REL/MX23REL.dta", clear
+        * drop release number, sequence numbers for x and y
+            drop MX1 MX4 MX9
+        * generate IDs for x and y, drop original person numbers
+            g ID = (1000*MX5) + MX6
+            g ID_y = (1000*MX10) + MX11
+            label var ID "Individual ID (1000*MX5 + MX6)"
+            label var ID_y "Individual ID Y (1000*MX10 + MX11)"
+            drop MX6 MX11 
+        * drop 1968 family number for y (this is usually the same) 
+            drop MX10
+        * year, fam, fam_id_ and fam_id_y_
+            rename MX2 year
+            rename MX3 fam_id_
+            rename MX5 fam
+        * drop person y relationship to RP
+            drop MX12
+        * core relationship variable
+            rename MX8 relationship_x_y
+        * relationship of x to head. 
+            rename MX7 head_rel_
+        * order
+            order fam year ID ID_y fam_id_ relationship_x_y
+    
+    /* 02. Merge on sample members, only need their relationships */
+        merge m:1 ID year fam_id_ using "$output/_psid_long_lean.dta"
+        * drop non-sample people's relationships
+        drop if _merge == 1
+        * i'm keeping self rows for now.
+
+    /* 03. Index */ 
+        sort ID year fam_id_ ID_y
+        bysort ID year fam_id_: g index = _n
+        order fam year ID ID_y index
+        drop _merge
+
+    /* 04. Reshape wide */
+        reshape wide ID_y relationship_x_y, i(ID year fam_id_) j(index)
+
+    /* 05. Remake HHR see what happens */
+        g hhr_matrix = ""
+        forvalues i = 1/19{
+            g str_ID_y`i' = string(ID_y`i')
+        }
+
+        forvalues i = 1/19{
+            replace str_ID_y`i' = "" if relationship_x_y`i' == 10
+        }
+        forvalues i = 1/19{
+            replace str_ID_y`i' = "" if str_ID_y`i' == "."
+        }
+
+        replace hhr_matrix = str_ID_y1 + " " + str_ID_y2 + " " + str_ID_y3 + " " + str_ID_y4 + " " + str_ID_y5 + " " + str_ID_y6 + " " + str_ID_y7 + " " + str_ID_y8 + " " + str_ID_y9 + " " + str_ID_y10 + " " + str_ID_y11 + " " + str_ID_y12 + " " + str_ID_y13 + " " + str_ID_y14 + " " + str_ID_y15 + " " + str_ID_y16 + " " + str_ID_y17 + " " + str_ID_y18 + " " + str_ID_y19
+        replace hhr_matrix = stritrim(hhr_matrix)
+        replace hhr_matrix = strtrim(hhr_matrix)
+        label var hhr_matrix "Household roster based on family matrix: IDs of family members in the same family-year based on family matrix"
+
+        drop str_ID_y*
+
+    /* 06. Make relationship roster */
+        g rel_matrix = ""
+        forvalues i = 1/19{
+            g str_rel`i' = string(relationship_x_y`i')
+        }
+        forvalues i = 1/19{
+            replace str_rel`i' = "" if relationship_x_y`i' == 10
+        }
+        forvalues i = 1/19{
+            replace str_rel`i' = "" if str_rel`i' == "."
+        }
+
+        replace rel_matrix = str_rel1 + " " + str_rel2 + " " + str_rel3 + " " + str_rel4 + " " + str_rel5 + " " + str_rel6 + " " + str_rel7 + " " + str_rel8 + " " + str_rel9 + " " + str_rel10 + " " + str_rel11 + " " + str_rel12 + " " + str_rel13 + " " + str_rel14 + " " + str_rel15 + " " + str_rel16 + " " + str_rel17 + " " + str_rel18 + " " + str_rel19
+        replace rel_matrix = stritrim(rel_matrix)
+        replace rel_matrix = strtrim(rel_matrix)
+        label var rel_matrix "Relationship roster based on family matrix: Relationships of family members to head/RP in the same family-year based on family matrix"
+
+        drop str_rel*
+    
+    /* 07 Clean up, clean up */
+        keep fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
+        order fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
+
+    /* 08. Save */
+        save "$output/_psid_long_matrix.dta", replace
+}
+
+
+/* ------------------------------------- */
+* PART IB: RUN _PSID_LONG_MATRIX.DTA THROUGH 
 * _HHR.IPYNB TO IDENTIFY HHR CHANGES
 /* ------------------------------------- */
+
 
 /* ------------------------------------- */
 * PART II: merge together data from each survey 
@@ -2199,23 +2308,38 @@ if `part5' == 1{
         replace og_1968_family = 0 if og_1968_family == . 
         replace imm_latino_family = 0 if imm_latino_family == .
 
-    /* 10. Birth year */
+    /* 10. Birth year 
+        Because no one is age "0" in the PSID, birth year can be 
+        as early as 1967. */
+
+    /* HERE'S WHERE I WILL FIX. QUICK FIX FOR NOW */
         g birth_year = year - age_
-        egen min_birth_year = min(birth_year), by(ID)
-        replace birth_year = min_birth_year
-        drop min_birth_year
+        egen max_birth_year = max(birth_year), by(ID)
+        replace birth_year = max_birth_year
+        replace birth_year = 2007 if birth_year > 2007 & sample_indiv_A == 1
+
         label var birth_year "Birth Year of Individual"
 
-    /* 11. Birth Cohort */
-        g birth_cohort = "pre 1955" if birth_year < 1955
-        replace birth_cohort = "1955-1965" if birth_year >= 1955 & birth_year < 1965
-        replace birth_cohort = "1965-1975" if birth_year >= 1965 & birth_year < 1975
-        replace birth_cohort = "1975-1985" if birth_year >= 1975 & birth_year < 1985
-        replace birth_cohort = "1985-1995" if birth_year >= 1985 & birth_year < 1995
-        replace birth_cohort = "1995-2005" if birth_year >= 1995 & birth_year < 2005
-        replace birth_cohort = "2005-2015" if birth_year >= 2005 & birth_year < 2015
-        replace birth_cohort = "after 2015" if birth_year >= 2015
-        label var birth_cohort "Birth Cohort of Individual"
+    /* 11. Birth Cohort - A */
+        g birth_cohort_A = "pre-1955" if birth_year < 1955
+        replace birth_cohort_A = "1955-1964" if birth_year >= 1955 & birth_year < 1965
+        replace birth_cohort_A = "1965-1974" if birth_year >= 1965 & birth_year < 1975
+        replace birth_cohort_A = "1975-1984" if birth_year >= 1975 & birth_year < 1985
+        replace birth_cohort_A = "1985-1994" if birth_year >= 1985 & birth_year < 1995
+        replace birth_cohort_A = "1995-2004" if birth_year >= 1995 & birth_year < 2005
+        replace birth_cohort_A = "2005-2014" if birth_year >= 2005 & birth_year < 2015
+        replace birth_cohort_A = "2015-" if birth_year >= 2015
+        label var birth_cohort_A "Birth Cohort of Individual A"
+
+    /* 12. Birth Cohort - B */
+        g birth_cohort_B = "pre-1966" if birth_year < 1967
+        replace birth_cohort_B = "1967-1976" if birth_year >= 1967 & birth_year < 1977
+        replace birth_cohort_B = "1977-1986" if birth_year >= 1977 & birth_year < 1987
+        replace birth_cohort_B = "1987-1996" if birth_year >= 1987 & birth_year < 1997
+        replace birth_cohort_B = "1997-2006" if birth_year >= 1997 & birth_year < 2007
+        replace birth_cohort_B = "2007-2016" if birth_year >= 2007 & birth_year < 2017
+        replace birth_cohort_B = "2017-" if birth_year >= 2017
+        label var birth_cohort_B "Birth Cohort of Individual B"
 
     /* 12. Save */
         save "$output/_psid_analytic_sample.dta", replace
@@ -2233,7 +2357,7 @@ if `part6' == 1{
     /* 00. Collapse & encode */
         local maxvars par_came par_left gpar_came gpar_left hhr_change hhr_in hhr_out adult_came adult_left child_came child_left sib_came sib_left og_1968_family imm_latino_family birth_year
         local minvars age_first_observed
-        local firstnm rp_race head_sex parent_self_race relative_race birth_cohort
+        local firstnm rp_race head_sex parent_self_race relative_race birth_cohort_A birth_cohort_B
         local lastnm sex rp_education_A rp_education_B
         local mean waves_17_under waves_17_skipadjusted sample_indiv_N sample_indiv_A sample_indiv_B 
 
@@ -2250,49 +2374,107 @@ if `part6' == 1{
         label define educationlabel 1 "No College Degree" 2 "College Degree or More" 3 "Unknown"
         encode rp_education_B, g(rp_education_B1) label(educationlabel)
 
-        label define birthcohortlabel 1 "pre 1955" 2 "1955-1965" 3 "1965-1975" 4 "1975-1985" 5 "1985-1995" 6 "1995-2005" 7 "2005-2015" 8 "after 2015"
-        encode birth_cohort, g(birth_cohort1) label(birthcohortlabel)
+        label define birthcohortAlabel 1 "pre-1955" 2 "1955-1964" 3 "1965-1974" 4 "1975-1984" 5 "1985-1994" 6 "1995-2004" 7 "2005-2014" 8 "2015-", replace
+        encode birth_cohort_A, g(birth_cohort_A1) label(birthcohortAlabel)
+
+        label define birthcohortBlabel 1 "pre-1966" 2 "1967-1976" 3 "1977-1986" 4 "1987-1996" 5 "1997-2006" 6 "2007-2016" 7 "2017-", replace
+        encode birth_cohort_B, g(birth_cohort_B1) label(birthcohortBlabel)
 
         label var sex1 "Sex"
         label var rp_race1 "Race of Reference Person"
         label var rp_education_B1 "Education of Reference Person"
-        label var birth_cohort1 "Birth Cohort"
+        label var birth_cohort_A1 "Birth Cohort A"
+        label var birth_cohort_B1 "Birth Cohort B"
         label var birth_year "Birth Year"
+
+        g adult_change = adult_came + adult_left
+        replace adult_change = 1 if adult_change == 2
+        label var adult_change "Adult Change in Household" 
+        label var adult_came "Adult Entered Household"
+        label var adult_left "Adult Left Household"
+
+        g par_change = par_came + par_left
+        replace par_change = 1 if par_change == 2
+        label var par_change "Parent Change in Household"
+        label var par_came "Parent Entered Household"
+        label var par_left "Parent Left Household"
+
+        g gpar_change = gpar_came + gpar_left
+        replace gpar_change = 1 if gpar_change == 2
+        label var gpar_change "Grandparent Change in Household"
+        label var gpar_came "Grandparent Entered Household"
+        label var gpar_left "Grandparent Left Household"
+
+
 
     /* 00. Initialize folder for today's date & version */
         local today = string(date(c(current_date), "DMY"), "%tdMonth-NN-CCYY")
         local i = 1
         local todayversion = "`today'"+"-v`i'"
         capture mkdir "$output/_tables/`todayversion'"
+        local todayversion = "June-08-2026-v1"
+
+    /* 00. Tempfiles for Sample N, A, B */
+        tempfile sample_N
+        save `sample_N', replace
+
+        drop if sample_indiv_A == 0
+        tempfile sample_A
+        save `sample_A', replace
+
+        clear
+        use `sample_N', clear
+        drop if sample_indiv_B == 0
+        tempfile sample_B
+        save `sample_B', replace
+
+
 
 
     /* 01. Table 1. Descriptive Statistics for Samples A, B, and N. 
         Sex, rp race, rp education, birth year, and birth cohort */
-        capture restore
-        preserve
-        drop if sample_indiv_A == 0
+
         /* 01a. Sample A */
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            use `sample_A', clear
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
             collect export "$output/_tables/`todayversion'/table1_A.tex", replace
 
-        restore
-        preserve
-        drop if sample_indiv_B == 0
+
         /* 01b. Sample B */
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            use `sample_B', clear
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
             collect export "$output/_tables/`todayversion'/table1_B.tex", replace
 
-        restore
-        preserve
-        drop if sample_indiv_N == 0
         /* 01c. Sample N */
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
+            use `sample_N', clear
+            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
             collect export "$output/_tables/`todayversion'/table1_N.tex", replace
 
-    /* 02. Table 2. */
+
+    /* 02. Table 2. Frequency of Adult Changes */
+
+        /* 02a. Sample A */
+            use `sample_A', clear
+            dtable i.adult_change i.adult_came i.adult_left i.par_change i.par_came i.par_left i.gpar_change i.gpar_came i.gpar_left, column(summary("N(%)")) nformat(%12.1f percent) nformat(%12.0f N)
+
+        /* 02b. Sample B */
+            use `sample_B', clear
+            dtable i.adult_change i.adult_came i.adult_left i.par_change i.par_came i.par_left i.gpar_change i.gpar_came i.gpar_left, column(summary("N(%)")) nformat(%12.1f percent) nformat(%12.0f N)
 
 
-    /* 03. Table 3. */
+
+    /* 03. Table 3. Adult Changes by Birth Cohort */
+
+        /* 02a. Sample A */
+            use `sample_A', clear
+            dtable i.birth_cohort_B1, by (adult_change)
+            
+
+        /* 02b. Sample B */
+            use `sample_B', clear
+            dtable i.birth_cohort_B1, by (adult_change)
+
+
 
     /* 04. Table 4. */
 
