@@ -2,7 +2,7 @@
 * Sarah Sullivan 
 * OG Created: December 27, 2025
 * Version Created: March 6, 2026
-* Last Updated: June 7, 2026
+* Last Updated: June 8, 2026
 
 * _psid.do
 
@@ -76,8 +76,8 @@ wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at 
     log using "$log/_psid_`datetime'.log", replace
     
     * Switches
-    local part1 0
-    local part1a 1
+    local part1 1
+    local part1a 0
     local part2 0
     local part3 0
     local part4 0
@@ -164,6 +164,10 @@ if `part1' == 1{
             local i = `i' + 2
         }
     
+
+        tempfile temp2
+        save `temp2'
+        
     /* 05. AGE --> 
         I use respondent-reported age variables to determine each individual's age at each wave. The respondent in each wave of the PSID is typically 
         the "Head/Reference Person" (hereafter RP) of the family unit but may also be that individual's spouse or partner or someone else responding in their stead. 
@@ -312,12 +316,26 @@ if `part1' == 1{
         label var erroneousperson "Binary: Person with age reporting error, dropped from sample"
         * n = 12
 
+    /* HARDCODE ERRORS */
+        * because he is the only member of his household, we're gonna replace his family iD with the other one
+        replace fam = 5741 if ID == 5742001
+        g fam_changed = 1 if ID == 5742001
+        
+        replace fam = 1843 if ID == 1844001
+        replace fam_changed = 1 if ID == 1844001
+
+        replace fam = 937 if ID == 938002
+        replace fam_changed = 1 if ID == 938002
+        
+        replace fam_changed = 0 if fam_changed == .
+        label var fam_changed "Binary: Family ID changed for person with two households in one home"
+
+
     /* 10. Flag Analytic Sample Families & Drop unqualified families 
         * 5,565 families
         * 80,125 sample people in qualified families
         * 45,045 qualified children (children in sample N, A, or B)
         */
-
         * analytic_sample_family = 1 if at least one person in the original 1968 family unit is in the analytic sample (analytic_sample_indiv == 1)
         egen analytic_sample_family = max(analytic_sample_indiv), by(fam)
         label var analytic_sample_indiv "Binary: In Sample N, A, or B"
@@ -430,7 +448,11 @@ if `part1' == 1{
             label var fam_id_`i' "Family ID `i'"
         }
 
-        replace fam_id_1968 = fam 
+        replace fam_id_1968 = fam
+            replace fam_id_1968 = 5742 if ID == 5742001
+            replace fam_id_1968 = 1844 if ID == 1844001
+            replace fam_id_1968 = 938 if ID == 938002
+            replace fam_id_1968 = 5742 if ID == 5742001
         replace fam_id_1969 = ER30020 
         replace fam_id_1970 = ER30043 
         replace fam_id_1971 = ER30067 
@@ -544,10 +566,11 @@ if `part1' == 1{
     /* 19. RESHAPE LONG and save tempfile `long-file1'
         This creates a long file with one row per person-year, including blank rows for years when the person is not observed. (AKA a perfect panel)
         * 3,445,375 person-year observations --> INCLUDING BLANKS. 2,071,258 person-year observations with non-missing fam_id_ (i.e., observed in that year)
-        * 80,125 people
+        * 80,125 people (+2)
         * 45,056 of them sample members (the rest are family members of sample members)
 
         */ 
+
         reshape long age_ in_ fam_id_ head_rel_ why_nonresponse_,  i(ID) j(year)
         order ID fam fam_id_ age_first_observed sex
         label var year "Year"
@@ -794,15 +817,62 @@ if `part1a' == 1{
         keep fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
         order fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
 
+    /* 08. Five strange observations 
+        replace hhr_matrix = hhr_no_self if ID == 1290003 & year == 1969
+        replace hhr_matrix = hhr_no_self if ID == 1290004 & year == 1969
+            * 1290003 and 1290004 are siblings. ("relationship"=40)
+            replace rel_matrix = "30 30 40" if ID == 1290003 & year == 1969
+            replace rel_matrix = "30 30 40" if ID == 1290004 & year == 1969
+
+        replace hhr_matrix = hhr_no_self if ID == 2411033 & year == 2009
+            * 2411175 is 2411033's biological father
+                * aka rel of 2411033 to 2411175 is "child" = 30
+            replace rel_matrix = "30 40 72 40 30" if ID == 2411033 & year == 2009
+
+            
+        replace hhr_matrix = hhr_no_self if ID == 2411174 & year == 2009
+            * 2411175 if 2411174's "social father"
+                * aka rel of 2411174  to 2411175 is "social child" = 35
+            replace rel_matrix = "" if ID == 2411174 & year == 2009
+
+
+        replace hhr_matrix = hhr_no_self if ID == 2411034 & year == 2009
+            * relationship of 2411034 to 2411175 is not listed in matrix ever because 2411034 doesn't appear until after 2005.
+                * In 2009: 
+                    * 2411030: grandchild
+                    * 2411033: niece/nephew
+                    * 2411173: child
+                    * 2411174: niece/nephew
+                * 33 is 34's aunt
+                60 70 30 70
+
+        rel_matrix	hhr_no_self
+        60 2411030
+        70 2411033
+        30 2411173
+        70 2411174 
+        X    2411175
+*/
+
     /* 08. Save */
         save "$output/_psid_long_matrix.dta", replace
+    
+    /* 09. Save only non matchers */
+        use "$output/_psid_long_matrix.dta", clear
+        drop if hhr_matrix == hhr_no_self
+        save "$output/_psid_long_matrix_nomatch.dta", replace
+
+
+
 }
 
 
 /* ------------------------------------- */
-* PART IB: RUN _PSID_LONG_MATRIX.DTA THROUGH 
+* PART IB: RUN _PSID_LONG_MATRIX.DTA 
+* THROUGH 
 * _HHR.IPYNB TO IDENTIFY HHR CHANGES
 /* ------------------------------------- */
+
 
 
 /* ------------------------------------- */
