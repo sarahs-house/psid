@@ -2,7 +2,7 @@
 * Sarah Sullivan 
 * OG Created: December 27, 2025
 * Version Created: March 6, 2026
-* Last Updated: June 8, 2026
+* Last Updated: June 16, 2026
 
 * _psid.do
 
@@ -20,22 +20,21 @@ Questions about the code should be directed to Sarah Sullivan.
 The file is organized as follows:
 Part 0: Program Setup, initialize log, set switches for running different parts of code.
 Part I: Input and cleaning of individual level PSID data
-Part II: Harmonization and cleaning of year level PSID data for waves 1968-2023. 
-Part III: Construction of family rosters
+Part II: Family matrix
+Part III: Harmonization and cleaning of year level PSID data for waves 1968-2023. 
 Part IV: Merging of data sets
 Part V: Cleaning and output for various deliverables 
+Part VI: Tables
 
-To do June 8, 2026: 
+To do next:
 - pull relevant tables
 - weights
 - see what's going on with dob and birth_cohort for sample B 
 - write a little about cases where RP becomes wife/husband or self. (e.g., move out at 16)
 
-Done June 7, 2026: 
-- renamed sample B sample A
-- dropped all funny people
-
 Questions/overall to do: 
+- how granular of relationships do we care about? 
+
 - Rule for sample A is currently # of waves observed before 18 = 18. But some ppl are observed at one age for more than one 
 wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at age 1? Same for the other edge. Condition on 17?
     - e.g: 
@@ -43,14 +42,10 @@ wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at 
     years observed (age): 2001 (1), 2003 (3), 2005 (5), 2007 (7), 2009 (9), 2011 (11), 2013 (13), 2015 (15), 2017 (16)
 
 - check age-first-observed for same reason
-
 - ever race of relative reported
 - why do some people have no age data ever observed? same with marital status? 
 - write up logic for hhr, ages_hhr, rel_hhr
-- how granular of relationships do we care about? --> using fims vs. 1985 relhist, etc. 
-    - in _hhr, want something like "family adult came, family adult left, other adult came/left, etc."
 - write up workflow & update readmes 
-- need adult_sib change, relative vs. non-relative change
 
 
 
@@ -59,9 +54,7 @@ wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at 
 ************************************
 
 /* ******************** */
-*
 * PART 0: PROGRAM SET UP
-*
 /* ******************** */
 
     clear all
@@ -76,12 +69,11 @@ wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at 
     log using "$log/_psid_`datetime'.log", replace
     
     * Switches
-    local part1 1
-    local part1a 0
+    local part1 0
     local part2 0
     local part3 0
-    local part4 0
-    local part5 0
+    local part4 1
+    local part5 1
     local part6 0
 
 
@@ -94,10 +86,6 @@ wave, but NOT OBSERVED AT AGE 1 or 17. Should we condition on being observed at 
 
 
 if `part1' == 1{
-    /*
-    - Create list of kept variables for analysis. 
-    - Define which sample entered: immigrant/latino, original psid, born to og psid, born to immigrant/latino.
-    */
 
     /* 01. Individual file */
         * N = n = 85,536
@@ -163,12 +151,80 @@ if `part1' == 1{
             replace in_`yr' = 1 if `var' == 0
             local i = `i' + 2
         }
-    
 
-        tempfile temp2
-        save `temp2'
-        
-    /* 05. AGE --> 
+    /* 05. Weights */
+
+        rename ER31996 strata_ind2023
+        rename ER31997 cluster_ind2023
+
+        forvalues i = 1968/1997{
+            g indiv_weight_`i' = 0
+            label var indiv_weight_`i' "Individual Weight `i'"
+        }
+
+        forvalues i=1999(2)2023{
+            g indiv_weight_`i' = 0
+            label var indiv_weight_`i' "Individual Weight `i'"
+        }
+
+        /* Longitudinal weights until 1989: no cross-sectional weights available pre 1989 */
+        replace indiv_weight_1968 = ER30019
+        replace indiv_weight_1969 = ER30042 
+        replace indiv_weight_1970 = ER30066 
+        replace indiv_weight_1971 = ER30090 
+        replace indiv_weight_1972 = ER30116 
+        replace indiv_weight_1973 = ER30137 
+        replace indiv_weight_1974 = ER30159 
+        replace indiv_weight_1975 = ER30187 
+        replace indiv_weight_1976 = ER30216 
+        replace indiv_weight_1977 = ER30245 
+        replace indiv_weight_1978 = ER30282 
+        replace indiv_weight_1979 = ER30312 
+        replace indiv_weight_1980 = ER30342 
+        replace indiv_weight_1981 = ER30372 
+        replace indiv_weight_1982 = ER30398 
+        replace indiv_weight_1983 = ER30428 
+        replace indiv_weight_1984 = ER30462 
+        replace indiv_weight_1985 = ER30497 
+        replace indiv_weight_1986 = ER30534 
+        replace indiv_weight_1987 = ER30569 
+        replace indiv_weight_1988 = ER30605 
+        replace indiv_weight_1989 = ER30641
+
+        /* Combined longitudinal core and latino for 1990-1992*/
+        replace indiv_weight_1990 = ER30688 
+        replace indiv_weight_1991 = ER30732 
+        replace indiv_weight_1992 = ER30805
+
+
+        /* Combined core and latino for 1993-1995, with 1993 revision */
+        replace indiv_weight_1993 = ER30866 
+        replace indiv_weight_1994 = ER33121 
+        replace indiv_weight_1995 = ER33277
+    
+        /* Core Longitudinal weight for 1996 */
+        replace indiv_weight_1996 = ER33318
+
+        /* Combined longitudinal core and latino for 1997-2023 */
+        replace indiv_weight_1997 = ER33430 
+        replace indiv_weight_1999 = ER33546 
+        replace indiv_weight_2001 = ER33637 
+        replace indiv_weight_2003 = ER33740 
+        replace indiv_weight_2005 = ER33848
+        replace indiv_weight_2007 = ER33950
+        replace indiv_weight_2009 = ER34045 
+        replace indiv_weight_2011 = ER34154 
+        replace indiv_weight_2013 = ER34268 
+        replace indiv_weight_2015 = ER34413 
+        replace indiv_weight_2017 = ER34650 
+        replace indiv_weight_2019 = ER34863 
+        replace indiv_weight_2021 = ER35064 
+        replace indiv_weight_2023 = ER35264
+
+
+
+
+    /* 06. AGE --> 
         I use respondent-reported age variables to determine each individual's age at each wave. The respondent in each wave of the PSID is typically 
         the "Head/Reference Person" (hereafter RP) of the family unit but may also be that individual's spouse or partner or someone else responding in their stead. 
         The RP is most often a parent of the children in the household but may be another adult in the household. The RP reports ages for every household member in each 
@@ -192,6 +248,7 @@ if `part1' == 1{
         For that reason, I replace each year's age variable with missing if the person is not observed in that year.
         
         */
+
         forvalues i = 1968/1997{
             g age_`i' = . 
             label var age_`i' "Age in FU `i'"
@@ -228,7 +285,10 @@ if `part1' == 1{
             replace age_`i' = . if in_`i' == 0
         }
 
-    /* 06. Age first observed */
+    /* 07. Save ages intermediate file */
+        save "${output}/_ind_ages.dta", replace
+
+    /* 08. Age first observed */
         * Age first observed is calculated as, age in 1968 if observed in 1968, age in 1969 if not observed in 1968 and observed in 1969, ... 
         * If not observed in any wave, age first observed is coded as 999.
 
@@ -254,11 +314,8 @@ if `part1' == 1{
 
         g waves_17_under = (!missing(age_1968) & age_1968 < 18) + (!missing(age_1969) & age_1969 < 18) + (!missing(age_1970) & age_1970 < 18) + (!missing(age_1971) & age_1971 < 18) + (!missing(age_1972) & age_1972 < 18) + (!missing(age_1973) & age_1973 < 18) + (!missing(age_1974) & age_1974 < 18) + (!missing(age_1975) & age_1975 < 18) + (!missing(age_1976) & age_1976 < 18) + (!missing(age_1977) & age_1977 < 18) + (!missing(age_1978) & age_1978 < 18) + (!missing(age_1979) & age_1979 < 18) + (!missing(age_1980) & age_1980 < 18) + (!missing(age_1981) & age_1981 < 18) + (!missing(age_1982) & age_1982 < 18) + (!missing(age_1983) & age_1983 < 18) + (!missing(age_1984) & age_1984 < 18) + (!missing(age_1985) & age_1985 < 18) + (!missing(age_1986) & age_1986 < 18) + (!missing(age_1987) & age_1987 < 18) + (!missing(age_1988) & age_1988 < 18) + (!missing(age_1989) & age_1989 < 18) + (!missing(age_1990) & age_1990 < 18) + (!missing(age_1991) & age_1991 < 18) + (!missing(age_1992) & age_1992 < 18) + (!missing(age_1993) & age_1993 < 18) + (!missing(age_1994) & age_1994 < 18) + (!missing(age_1995) & age_1995 < 18) + (!missing(age_1996) & age_1996 < 18) + (!missing(age_1997) & age_1997 < 18) + (!missing(age_1999) & age_1999 < 18) + (!missing(age_2001) & age_2001 < 18) + (!missing(age_2003) & age_2003 < 18) + (!missing(age_2005) & age_2005 < 18) + (!missing(age_2007) & age_2007 < 18) + (!missing(age_2009) & age_2009 < 18) + (!missing(age_2011) & age_2011 < 18) + (!missing(age_2013) & age_2013 < 18) + (!missing(age_2015) & age_2015 < 18) + (!missing(age_2017) & age_2017 < 18) + (!missing(age_2019) & age_2019 < 18) + (!missing(age_2021) & age_2021 < 18) + (!missing(age_2023) & age_2023 < 18)
         label var waves_17_under "Waves in PSID UNDER age 18 (17 and less)"
-       
-        tempfile waves
-        save `waves', replace
     
-    /* 07. FIMS: merge on family identification mapping system files that allow us to identify parents, gpars, and sibs */
+    /* 09. FIMS: merge on family identification mapping system files that allow us to identify parents, gpars, and sibs */
         * Family Identification Mapping System (FIMS) files are created by the PSID team and allow us to identify family relationships between individuals in the PSID.
         * These files are preprocessed and cleaned by me in separate do files. The cleaned FIMS files are saved in the output folder with the following names: 
             * _fims_pars_clean.dta
@@ -277,7 +334,7 @@ if `part1' == 1{
         drop _merge
         * N = 85,536
 
-    /* 08. CREATE ANALYTIC SAMPLE INDICATOR --> ANYONE OBSERVED DURING CHILDHOOD FOR ANY NUMBER OF WAVES.
+    /* 10. CREATE ANALYTIC SAMPLE INDICATOR --> ANYONE OBSERVED DURING CHILDHOOD FOR ANY NUMBER OF WAVES.
         * Sample N: all PSID children. Anyone observed for any number of waves BEFORE age 18.
         
         LATER:
@@ -290,7 +347,7 @@ if `part1' == 1{
         label var analytic_sample_indiv "Binary: In Sample N, A, or B. Observed before age 18."
         * n = 45,057 (out of 85,536 total individuals)
 
-    /* 09. Some erroneous sample people 
+    /* 11. Some erroneous sample people 
             There are 12 people observed at least once before age 18 (analytic_sample_indiv==1)
             but whose age at first observation is >= 18 (age_first_observed >= 18). 
             I checked these people by hand and observed the following: 
@@ -316,7 +373,7 @@ if `part1' == 1{
         label var erroneousperson "Binary: Person with age reporting error, dropped from sample"
         * n = 12
 
-    /* HARDCODE ERRORS */
+    /* 12. HARDCODE ERRORS */
         * because he is the only member of his household, we're gonna replace his family iD with the other one
         replace fam = 5741 if ID == 5742001
         g fam_changed = 1 if ID == 5742001
@@ -331,7 +388,7 @@ if `part1' == 1{
         label var fam_changed "Binary: Family ID changed for person with two households in one home"
 
 
-    /* 10. Flag Analytic Sample Families & Drop unqualified families 
+    /* 13. Flag Analytic Sample Families & Drop unqualified families 
         * 5,565 families
         * 80,125 sample people in qualified families
         * 45,045 qualified children (children in sample N, A, or B)
@@ -341,15 +398,11 @@ if `part1' == 1{
         label var analytic_sample_indiv "Binary: In Sample N, A, or B"
         label var analytic_sample_family "Binary: Family with at least one child in Sample N, A, or B"
 
-        * Save a tempfile of the cleaned individual data before we cut off non-sample families
-        tempfile pre_cut1
-        save `pre_cut1', replace
-
         * Drop families that do not have at least one child in the analytic sample (analytic_sample_family == 0)
         drop if analytic_sample_family == 0
 
 
-    /* 11. Waves observed, adjusted for skipped years of data collection 
+    /* 14. Waves observed, adjusted for skipped years of data collection 
         The PSID was collected annually from 1968 to 1997 and biennially from 1999 to 2023. 
         To determine who is observed continuously from birth to age 17 (inclusive), we need to adjust for skipped years.
         */
@@ -365,7 +418,7 @@ if `part1' == 1{
         label var waves_17_skipadjusted "Waves in PSID under age 18, adjusted for skipping years"
         drop *_preskip *_postskip
 
-    /* 12. Define each sample: N, A, B -->
+    /* 15. Define each sample: N, A, B -->
         For samples N and B, we use waves_17_under. For sample A, we use waves_17_skipadjusted.
 
         Sample A is counting who is observed continously throughout childhood, using the rule of being observed for at least 17 waves before age 18, adjusted for skipping years. 
@@ -399,11 +452,11 @@ if `part1' == 1{
         egen sample_family_B = max(sample_indiv_B), by(fam)
         label var sample_family_B "Binary: Family with at least one child in Sample B"
 
-    /* 14. Sex */
+    /* 16. Sex */
         rename ER32000 sex 
         label var sex "Sex of Individual"
 
-    /* 15. Split offs 
+    /* 17. Split offs 
         * Split off families are created when someone in the original family unit leaves to create a new family unit. For example, a child in the original family unit may grow up and leave to create their own family unit with a spouse and children.
         * The variables family_id_YEAR are year-specific family ID variables that allow us to distinguish between households in the same original family unit observed in the same year (e.g., original parents (now grandparents) household vs. son and child's household)
         
@@ -497,7 +550,7 @@ if `part1' == 1{
         replace fam_id_2023 = ER35101
 
 
-    /* 16. Head relationship 
+    /* 18. Head relationship 
         * Variable recording the relationship between the individual and the Head/Reference Person in each wave. 
         = 0 if the person is not observed in that year. 
         */ 
@@ -521,7 +574,7 @@ if `part1' == 1{
             local n = `n' + 2
         }
 
-    /* 17. Why nonresponse 
+    /* 19. Why nonresponse 
         Recode variables that capture why a person was a nonresponse in that year prior to reshape
         */
         local year_vars 1968 ER30018 1969 ER30041 1970 ER30065 1971 ER30089 1972 ER30115 1973 ER30136 1974 ER30158 1975 ER30186 1976 ER30215 1977 ER30244 1978 ER30281 1979 ER30311 1980 ER30341 1981 ER30371 1982 ER30397 1983 ER30427 1984 ER30461 1985 ER30496 1986 ER30533 1987 ER30568 1988 ER30604 1989 ER30640 1990 ER30685 1991 ER30729 1992 ER30802 1993 ER30863 1994 ER33127 1995 ER33283 1996 ER33325 1997 ER33437 1999 ER33545 2001 ER33636 2003 ER33739 2005 ER33847 2007 ER33949 2009 ER34044 2011 ER34153 2013 ER34267 2015 ER34412 2017 ER34649 2019 ER34862 2021 ER35063 2023 ER35263
@@ -545,15 +598,12 @@ if `part1' == 1{
         }
         
 
-    /* 18. Clean and save tempfile before reshape */
-        /* TEMPFILE: POST CUT */
-        tempfile post_cut1
-        save `post_cut1', replace
-
+    /* 20. Clean and save tempfile before reshape */
         local ids fam ID 
         local demos sex age_first_observed
         local sample analytic_sample_indiv analytic_sample_family sample_indiv_N sample_family_N sample_indiv_A sample_family_A sample_indiv_B sample_family_B og_1968_family imm_latino_family fam_sample 
         local ins in_1968 in_1969 in_1970 in_1971 in_1972 in_1973 in_1974 in_1975 in_1976 in_1977 in_1978 in_1979 in_1980 in_1981 in_1982 in_1983 in_1984 in_1985 in_1986 in_1987 in_1988 in_1989 in_1990 in_1991 in_1992 in_1993 in_1994 in_1995 in_1996 in_1997 in_1999 in_2001 in_2003 in_2005 in_2007 in_2009 in_2011 in_2013 in_2015 in_2017 in_2019 in_2021 in_2023 
+        local weights indiv_weight_1968 indiv_weight_1969 indiv_weight_1970 indiv_weight_1971 indiv_weight_1972 indiv_weight_1973 indiv_weight_1974 indiv_weight_1975 indiv_weight_1976 indiv_weight_1977 indiv_weight_1978 indiv_weight_1979 indiv_weight_1980 indiv_weight_1981 indiv_weight_1982 indiv_weight_1983 indiv_weight_1984 indiv_weight_1985 indiv_weight_1986 indiv_weight_1987 indiv_weight_1988 indiv_weight_1989 indiv_weight_1990 indiv_weight_1991 indiv_weight_1992 indiv_weight_1993 indiv_weight_1994 indiv_weight_1995 indiv_weight_1996 indiv_weight_1997 indiv_weight_1999 indiv_weight_2001 indiv_weight_2003 indiv_weight_2005 indiv_weight_2007 indiv_weight_2009 indiv_weight_2011 indiv_weight_2013 indiv_weight_2015 indiv_weight_2017 indiv_weight_2019 indiv_weight_2021 indiv_weight_2023 cluster_ind2023 strata_ind2023
         local ages age_1968 age_1969 age_1970 age_1971 age_1972 age_1973 age_1974 age_1975 age_1976 age_1977 age_1978 age_1979 age_1980 age_1981 age_1982 age_1983 age_1984 age_1985 age_1986 age_1987 age_1988 age_1989 age_1990 age_1991 age_1992 age_1993 age_1994 age_1995 age_1996 age_1997 age_1999 age_2001 age_2003 age_2005 age_2007 age_2009 age_2011 age_2013 age_2015 age_2017 age_2019 age_2021 age_2023 
         local waves waves waves_skipadjusted waves_17_under waves_17_skipadjusted 
         local parents_gpars ID_bM ID_bD ID_aM ID_aD ID_aM_aM ID_aM_aD ID_aM_bM ID_aM_bD ID_aD_aM ID_aD_aD ID_aD_bM ID_aD_bD ID_bM_aM ID_bM_aD ID_bM_bM ID_bM_bD ID_bD_aM ID_bD_aD ID_bD_bM ID_bD_bD 
@@ -561,9 +611,9 @@ if `part1' == 1{
         local fam_id fam_id_1968 fam_id_1969 fam_id_1970 fam_id_1971 fam_id_1972 fam_id_1973 fam_id_1974 fam_id_1975 fam_id_1976 fam_id_1977 fam_id_1978 fam_id_1979 fam_id_1980 fam_id_1981 fam_id_1982 fam_id_1983 fam_id_1984 fam_id_1985 fam_id_1986 fam_id_1987 fam_id_1988 fam_id_1989 fam_id_1990 fam_id_1991 fam_id_1992 fam_id_1993 fam_id_1994 fam_id_1995 fam_id_1996 fam_id_1997 fam_id_1999 fam_id_2001 fam_id_2003 fam_id_2005 fam_id_2007 fam_id_2009 fam_id_2011 fam_id_2013 fam_id_2015 fam_id_2017 fam_id_2019 fam_id_2021 fam_id_2023 
         local head_rel head_rel_1968 head_rel_1969 head_rel_1970 head_rel_1971 head_rel_1972 head_rel_1973 head_rel_1974 head_rel_1975 head_rel_1976 head_rel_1977 head_rel_1978 head_rel_1979 head_rel_1980 head_rel_1981 head_rel_1982 head_rel_1983 head_rel_1984 head_rel_1985 head_rel_1986 head_rel_1987 head_rel_1988 head_rel_1989 head_rel_1990 head_rel_1991 head_rel_1992 head_rel_1993 head_rel_1994 head_rel_1995 head_rel_1996 head_rel_1997 head_rel_1999 head_rel_2001 head_rel_2003 head_rel_2005 head_rel_2007 head_rel_2009 head_rel_2011 head_rel_2013 head_rel_2015 head_rel_2017 head_rel_2019 head_rel_2021 head_rel_2023
         local why_nonresponse why_nonresponse_1968 why_nonresponse_1969 why_nonresponse_1970 why_nonresponse_1971 why_nonresponse_1972 why_nonresponse_1973 why_nonresponse_1974 why_nonresponse_1975 why_nonresponse_1976 why_nonresponse_1977 why_nonresponse_1978 why_nonresponse_1979 why_nonresponse_1980 why_nonresponse_1981 why_nonresponse_1982 why_nonresponse_1983 why_nonresponse_1984 why_nonresponse_1985 why_nonresponse_1986 why_nonresponse_1987 why_nonresponse_1988 why_nonresponse_1989 why_nonresponse_1990 why_nonresponse_1991 why_nonresponse_1992 why_nonresponse_1993 why_nonresponse_1994 why_nonresponse_1995 why_nonresponse_1996 why_nonresponse_1997 why_nonresponse_1999 why_nonresponse_2001 why_nonresponse_2003 why_nonresponse_2005 why_nonresponse_2007 why_nonresponse_2009 why_nonresponse_2011 why_nonresponse_2013 why_nonresponse_2015 why_nonresponse_2017 why_nonresponse_2019 why_nonresponse_2021 why_nonresponse_2023
-        keep `ids' `demos' `sample' `ins' `ages' `waves' `parents_gpars' `siblings' `fam_id' `head_rel' `why_nonresponse'
+        keep `ids' `demos' `sample' `weights' `ins' `ages' `waves' `parents_gpars' `siblings' `fam_id' `head_rel' `why_nonresponse'
 
-    /* 19. RESHAPE LONG and save tempfile `long-file1'
+    /* 21. RESHAPE LONG and save tempfile `long-file1'
         This creates a long file with one row per person-year, including blank rows for years when the person is not observed. (AKA a perfect panel)
         * 3,445,375 person-year observations --> INCLUDING BLANKS. 2,071,258 person-year observations with non-missing fam_id_ (i.e., observed in that year)
         * 80,125 people (+2)
@@ -571,19 +621,18 @@ if `part1' == 1{
 
         */ 
 
-        reshape long age_ in_ fam_id_ head_rel_ why_nonresponse_,  i(ID) j(year)
+        reshape long age_ in_ indiv_weight_ fam_id_ head_rel_ why_nonresponse_,  i(ID) j(year)
         order ID fam fam_id_ age_first_observed sex
+        
         label var year "Year"
         label var fam_id_ "Family ID in year"
         label var age_ "Age in year"
         label var in_ "Present in year"
         label var head_rel_ "Relationship to head/RP in year"
         label var why_nonresponse_ "Why nonresponse in year"
+        label var indiv_weight_ "Individual weight in year"
 
-        tempfile long_file1
-        save `long_file1', replace
-
-    /* 20. Drop rows when person not interviewed PROVIDED IT IS NOT THE OBSERVATION
+    /* 22. Drop rows when person not interviewed PROVIDED IT IS NOT THE OBSERVATION
         AFTER THE LAST OBSERVATION FOR THAT PERSON 
         keep one after each person's last observation to understand why they attrited */
         
@@ -594,7 +643,7 @@ if `part1' == 1{
         replace lastobs = 0 if lastobs == . & in_ == 1
         drop if lastobs == . 
 
-    /* 21. Use attrit rows to develop why left survey variable and year left survey variable */
+    /* 23. Use attrit rows to develop why left survey variable and year left survey variable */
         g why_left_survey = why_nonresponse_ if lastobs == 1
         replace why_left_survey = 2023 if lastobs == 1 & year == 2023
         replace why_left_survey = 0 if why_left_survey == .
@@ -605,11 +654,11 @@ if `part1' == 1{
         egen year_left_survey = max(year), by(ID)
         label var year_left_survey "Year left survey, based on attrit row"
 
-    /* 22. DROP ATTRIT ROWS */
+    /* 24. DROP ATTRIT ROWS */
         drop if in_ == 0 
         * N = 866,035 person-year observations with in_ == 1 (person observed in that year)
     
-    /* 23. Household Roster */
+    /* 25. Household Roster */
         g hhr = ""
         sort fam year fam_id_ ID
         label var hhr "Household roster: IDs of family members in the same family-year"
@@ -630,7 +679,7 @@ if `part1' == 1{
         drop hhr_padded
         label var hhr_no_self "HHR without self: IDs of family members in the same family-year excluding self"
 
-    /* 24. Ages Roster */
+    /* 26. Ages Roster */
         g ages_hhr = ""
         sort fam year fam_id_ ID
         g str_age = string(age_)
@@ -647,7 +696,7 @@ if `part1' == 1{
         drop ages_padded
         label var ages_no_self "Ages without self: Ages of family members in the same family-year excluding self"
 
-    /* 25. Relationships Roster */
+    /* 27. Relationships Roster */
         g rel_hhr = ""
         sort fam year fam_id_ ID
         g str_rel = string(head_rel_)
@@ -664,31 +713,31 @@ if `part1' == 1{
         drop rel_padded
         label var rel_no_self "Rel no self: Relationships of family members TO HEAD/RP in the same family-year excluding self"
 
-    /* 26. List of siblings - time invariant*/
+    /* 28. List of siblings - time invariant*/
         egen sib_list = concat(ID_S01 ID_S02 ID_S03 ID_S04 ID_S05 ID_S06 ID_S07 ID_S08 ID_S09 ID_S10 ID_S11 ID_S12 ID_S13 ID_S14 ID_S15 ID_S16), punct(" ")
         replace sib_list = subinstr(sib_list, ".", "", .)
         replace sib_list = strtrim(sib_list)
         replace sib_list = stritrim(sib_list)
         label var sib_list "List of siblings (time invariant)"
 
-    /* 27. List of parents - time invariant */
+    /* 29. List of parents - time invariant */
         egen par_list = concat(ID_aM ID_bM ID_aD ID_bD), punct(" ")
         replace par_list = subinstr(par_list, ".", "", .)
         replace par_list = strtrim(par_list)
         replace par_list = stritrim(par_list)
         label var par_list "List of parents (time invariant)"
 
-    /* 28. List of grandparents - time invariant */
+    /* 30. List of grandparents - time invariant */
         egen gpar_list = concat(ID_aM_aM ID_aM_bM ID_aM_aD ID_aM_bD ID_bM_aM ID_bM_bM ID_bM_aD ID_bM_bD ID_aD_aM ID_aD_bM ID_aD_aD ID_aD_bD ID_bD_aM ID_bD_bM ID_bD_aD ID_bD_bD), punct(" ")
         replace gpar_list = subinstr(gpar_list, ".", "", .)
         replace gpar_list = strtrim(gpar_list)
         replace gpar_list = stritrim(gpar_list)
         label var gpar_list "List of grandparents (time invariant)"
 
-    /* 29. Save and export full */
+    /* 31. Save and export full */
         save "$output/_psid_long.dta", replace
     
-    /* 30. TRIM TO HEADS AND THEN SAMPLE HEADS */
+    /* 32. TRIM TO HEADS AND THEN SAMPLE HEADS */
         /* INTERMEDIATE FILE OF HEADS IN YEARS -- USED TO MERGE LATER */
             g flag = 1 if head_rel_ == 1 | head_rel_ == 10
             drop if flag != 1
@@ -698,7 +747,7 @@ if `part1' == 1{
             save "${output}/_psid_long_heads.dta", replace
 
 
-    /* 31. Drop non-sample members and observations after 17 */
+    /* 33. Drop non-sample members and observations after 17 */
         /* 
             We preserve family members of non-sample members because we use them 
             to construct family rosters and later to add race and ethnicity info. 
@@ -713,16 +762,17 @@ if `part1' == 1{
             drop if age_ >= 18
             * 316,712 observations, n = 45,045
 
-    /* 32. Clean up and save */ 
+    /* 34. Clean up and save */ 
             local ids ID fam_id_ year fam age_ 
             local rosters hhr_no_self ages_no_self rel_no_self
             local lists sib_list par_list gpar_list
             local sample sample_indiv_N sample_indiv_A sample_indiv_B
             local attrit year_left_survey why_left_survey
+            local weights indiv_weight_ cluster_ind2023 strata_ind2023
 
-            keep `ids' `rosters' `lists' `sample' `attrit'
+            keep `ids' `rosters' `lists' `sample' `attrit' `weights'
 
-            order fam ID year hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list age_ sample_indiv_N sample_indiv_A sample_indiv_B  
+            order fam ID year indiv_weight_ hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list age_ sample_indiv_N sample_indiv_A sample_indiv_B  
 
             sort fam ID year
     
@@ -730,10 +780,10 @@ if `part1' == 1{
 }
 
 /* ------------------------------------- */
-* PART IA: Family Matrix
+* PART II: Family Matrix
 /* ------------------------------------- */
 
-if `part1a' == 1{
+if `part2' == 1{
     /* 01. Input and clean family matrix */
             use "${raw}/MX23REL/MX23REL.dta", clear
         * drop release number, sequence numbers for x and y
@@ -759,22 +809,48 @@ if `part1a' == 1{
         * order
             order fam year ID ID_y fam_id_ relationship_x_y
     
+    /* 02. Merge on ages */
+        rename ID ID_x
+        rename ID_y ID
+        merge m:1 ID using "$output/_ind_ages.dta"
+
+        rename ID ID_y
+        rename ID_x ID
+        keep fam year ID ID_y fam_id_ relationship_x_y head_rel_ person_number age_1968 age_1969 age_1970 age_1971 age_1972 age_1973 age_1974 age_1975 age_1976 age_1977 age_1978 age_1979 age_1980 age_1981 age_1982 age_1983 age_1984 age_1985 age_1986 age_1987 age_1988 age_1989 age_1990 age_1991 age_1992 age_1993 age_1994 age_1995 age_1996 age_1997 age_1999 age_2001 age_2003 age_2005 age_2007 age_2009 age_2011 age_2013 age_2015 age_2017 age_2019 age_2021 age_2023
+
+        g age_y = . 
+        forvalues i = 1968/1997 {
+             replace age_y = age_`i' if year == `i'
+        }
+        forvalues i = 1999(2)2023 {
+            replace age_y = age_`i' if year == `i'
+        }
+
+        forvalues i = 1968/1997 {
+            drop age_`i'
+        }
+        forvalues i = 1999(2)2023 {
+            drop age_`i'
+        }
+
     /* 02. Merge on sample members, only need their relationships */
         merge m:1 ID year fam_id_ using "$output/_psid_long_lean.dta"
         * drop non-sample people's relationships
         drop if _merge == 1
-        * i'm keeping self rows for now.
+        * fill in age
+        replace age_y = 999 if age_y == . 
 
     /* 03. Index */ 
         sort ID year fam_id_ ID_y
+        drop person_number
         bysort ID year fam_id_: g index = _n
         order fam year ID ID_y index
         drop _merge
 
     /* 04. Reshape wide */
-        reshape wide ID_y relationship_x_y, i(ID year fam_id_) j(index)
+        reshape wide ID_y relationship_x_y age_y, i(ID year fam_id_) j(index)
 
-    /* 05. Remake HHR see what happens */
+    /* 05. Remake HHR  */
         g hhr_matrix = ""
         forvalues i = 1/19{
             g str_ID_y`i' = string(ID_y`i')
@@ -813,74 +889,76 @@ if `part1a' == 1{
 
         drop str_rel*
     
-    /* 07 Clean up, clean up */
-        keep fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
-        order fam ID year fam_id_ age_ head_rel_ hhr_matrix rel_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
+    /* 07. Remake ages roster */
 
-    /* 08. Five strange observations 
+      g age_matrix = ""
+        forvalues i = 1/19{
+            g str_age`i' = string(age_y`i')
+        }
+        forvalues i = 1/19{
+            replace str_age`i' = "" if relationship_x_y`i' == 10
+        }
+        forvalues i = 1/19{
+            replace str_age`i' = "" if str_age`i' == "."
+        }
+
+        replace age_matrix = str_age1 + " " + str_age2 + " " + str_age3 + " " + str_age4 + " " + str_age5 + " " + str_age6 + " " + str_age7 + " " + str_age8 + " " + str_age9 + " " + str_age10 + " " + str_age11 + " " + str_age12 + " " + str_age13 + " " + str_age14 + " " + str_age15 + " " + str_age16 + " " + str_age17 + " " + str_age18 + " " + str_age19
+        replace age_matrix = stritrim(age_matrix)
+        replace age_matrix = strtrim(age_matrix)
+        label var age_matrix "Age roster based on family matrix: Ages of family members in the same family-year based on family matrix"
+
+        drop str_age*
+
+    /* 07 Clean up, clean up */
+        keep fam ID year fam_id_ age_ hhr_matrix rel_matrix age_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
+        order fam ID year fam_id_ age_ hhr_matrix rel_matrix age_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey 
+
+    /* 08. Five strange observations */
         replace hhr_matrix = hhr_no_self if ID == 1290003 & year == 1969
         replace hhr_matrix = hhr_no_self if ID == 1290004 & year == 1969
             * 1290003 and 1290004 are siblings. ("relationship"=40)
             replace rel_matrix = "30 30 40" if ID == 1290003 & year == 1969
             replace rel_matrix = "30 30 40" if ID == 1290004 & year == 1969
+            replace age_matrix = "49 41 16" if ID == 1290003 & year == 1969
+            replace age_matrix = "49 41 18" if ID == 1290004 & year == 1969
 
         replace hhr_matrix = hhr_no_self if ID == 2411033 & year == 2009
-            * 2411175 is 2411033's biological father
-                * aka rel of 2411033 to 2411175 is "child" = 30
-            replace rel_matrix = "30 40 72 40 30" if ID == 2411033 & year == 2009
-
-            
-        replace hhr_matrix = hhr_no_self if ID == 2411174 & year == 2009
-            * 2411175 if 2411174's "social father"
-                * aka rel of 2411174  to 2411175 is "social child" = 35
-            replace rel_matrix = "" if ID == 2411174 & year == 2009
-
-
         replace hhr_matrix = hhr_no_self if ID == 2411034 & year == 2009
-            * relationship of 2411034 to 2411175 is not listed in matrix ever because 2411034 doesn't appear until after 2005.
-                * In 2009: 
-                    * 2411030: grandchild
-                    * 2411033: niece/nephew
-                    * 2411173: child
-                    * 2411174: niece/nephew
-                * 33 is 34's aunt
-                60 70 30 70
+        replace hhr_matrix = hhr_no_self if ID == 2411174 & year == 2009
 
-        rel_matrix	hhr_no_self
-        60 2411030
-        70 2411033
-        30 2411173
-        70 2411174 
-        X    2411175
-*/
+            * based on relationship in past years
+            replace rel_matrix = "30 72 40 40 30" if ID == 2411033 & year == 2009
+            replace age_matrix = "40 1 20 16 44" if ID == 2411033 & year == 2009
 
-    /* 08. Save */
+            * based on relationship in past years
+            replace rel_matrix = "30 40 72 40 35" if ID == 2411174 & year == 2009
+            replace age_matrix = "40 8 1 20 44" if ID == 2411174 & year == 2009
+            
+            * based on recontruction
+            replace rel_matrix = "60 70 30 70 61" if ID == 2411034 & year == 2009
+            replace age_matrix = "40 8 20 16 44" if ID == 2411034 & year == 2009    
+
+    /* 09. Save */
+        keep fam ID year fam_id_ age_ hhr_matrix rel_matrix age_matrix hhr_no_self ages_no_self rel_no_self sib_list par_list gpar_list sample_indiv_N sample_indiv_A sample_indiv_B why_left_survey year_left_survey
         save "$output/_psid_long_matrix.dta", replace
     
-    /* 09. Save only non matchers */
-        use "$output/_psid_long_matrix.dta", clear
-        drop if hhr_matrix == hhr_no_self
-        save "$output/_psid_long_matrix_nomatch.dta", replace
-
-
 
 }
 
 
 /* ------------------------------------- */
-* PART IB: RUN _PSID_LONG_MATRIX.DTA 
+* PART IIB: RUN _PSID_LONG_MATRIX.DTA 
 * THROUGH 
 * _HHR.IPYNB TO IDENTIFY HHR CHANGES
 /* ------------------------------------- */
 
 
-
 /* ------------------------------------- */
-* PART II: merge together data from each survey 
+* PART III: merge together data from each survey 
 * wave
 /* ------------------------------------- */
 
-if `part2' == 1{
+if `part3' == 1{
 
     /* 01. Pull and merge together data from survey waves 1968-2023 */
         /* 1968 survey */
@@ -1585,581 +1663,6 @@ if `part2' == 1{
 }
 
 /* ------------------------------------- */
-* PART III: Relationships Roster
-/* ------------------------------------- */
-
-if `part3' == 1{
-    /* 01. Relationships roster - load in relhist.dta */
-        clear
-        use "${output}/relhist.dta", clear
-        sort V1 V2 V3
-        rename V1 fam
-        label var fam "V1/ER30001 Family ID 1968"
-
-        rename V2 person_number
-        label var person_number "V2/ER30002 Person number 68"
-        g ID = (1000*fam) + person_number
-        label var ID "Individual ID (V1*1000 + V2)"
-
-        rename V3 person_number_y
-        label var person_number_y "V3/ER30002 Person number 68 (y)"
-
-        g ID_y = (1000*fam) + person_number_y
-        label var ID_y "Individual ID (V1*1000 + V3)"
-        order fam ID person_number ID_y person_number_y
-        rename V100 birth_year_x
-        rename V101 sex_x
-        rename V200 birth_year_y
-        rename V201 sex_y
-
-    /* 02. Renaming in relhist */
-        forvalues i=301(1)318{
-            local varname = "V`i'"
-            rename `varname' psid_status_x_`=1968 + (`i'-301)'
-        }
-        forvalues i=401(1)418{
-            local varname = "V`i'"
-            rename `varname' psid_status_y_`=1968 + (`i'-401)'
-        }
-        forvalues i=501(1)518{
-            local varname = "V`i'"
-            rename `varname' coresidence_status_`=1968 + (`i'-501)'
-        }
-        forvalues i=601(1)618{
-            local varname = "V`i'"
-            rename `varname' rv_8_rel_`=1968 + (`i'-601)'
-        }
-        forvalues i=701(1)718{
-            local varname = "V`i'"
-            rename `varname' rv_8_his_`=1968 + (`i'-701)'
-        }
-        forvalues i=801(1)818{
-            local varname = "V`i'"
-            rename `varname' rv_5_rel_`=1968 + (`i'-801)'
-            }
-        forvalues i=901(1)918{
-            local varname = "V`i'"
-            rename `varname' rv_5_his_`=1968 + (`i'-901)'
-        }
-
-        * 40,474  9.5% --> no relationship derived. 
-        rename V4 relationship_3
-        rename V6 relationship_5
-        rename V5 rel_3_changed
-        rename V7 rel_5_changed
-
-    /* 03. Drop dyads for whom we have no relationship data */
-        * ~ 9.5% of dyads have no relationship data (relationship_5 == "00000")        
-        drop if relationship_5 == "00000"
-        * drop other vars for now
-        drop rv_8* relationship_3 rel_3_changed
-        rename relationship_5 relationship
-
-    /* 04. Relationship in year -- choose rv_5_rel when they don't match */
-        forvalues i = 1968/1985{
-            g relationship_`i' = ""
-        }
-        
-        forvalues i = 1968/1985{
-            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' == rv_5_his_`i'
-            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' != "" & rv_5_his_`i' == ""
-            replace relationship_`i' = rv_5_his_`i' if rv_5_his_`i' != "" & rv_5_rel_`i' == ""
-            replace relationship_`i' = rv_5_rel_`i' if rv_5_rel_`i' != "" & rv_5_his_`i' != "" & relationship_`i' == ""
-        }
-
-    /* 05. Reshape */
-        drop rv_5_rel_* rv_5_his_*
-        reshape long relationship_ coresidence_status_ psid_status_x_ psid_status_y_, i(ID ID_y) j(yr)
-
-    /* 06. Encode relationship */
-        * drop the most commonly recorded
-        drop relationship
-        * rename relationship in year correctly 
-        rename relationship_ relationship
-        drop if relationship == ""
-        g relationship_coded = ""
-        replace relationship_coded = "Other" if relationship == "00098" 
-        replace relationship_coded = "Spouse" if relationship == "00131" 
-        replace relationship_coded = "Spouse" if relationship == "00132" 
-        replace relationship_coded = "Spouse" if relationship == "00133" 
-        replace relationship_coded = "Spouse" if relationship == "00134" 
-        replace relationship_coded = "Spouse" if relationship == "00135" 
-        replace relationship_coded = "Spouse" if relationship == "00137" 
-        replace relationship_coded = "Spouse" if relationship == "00138" 
-        replace relationship_coded = "Spouse" if relationship == "00139" 
-        replace relationship_coded = "Spouse" if relationship == "00151" 
-        replace relationship_coded = "Spouse" if relationship == "00152" 
-        replace relationship_coded = "Spouse" if relationship == "00153" 
-        replace relationship_coded = "Spouse" if relationship == "00154" 
-        replace relationship_coded = "Spouse" if relationship == "00155" 
-        replace relationship_coded = "Spouse" if relationship == "00156" 
-        replace relationship_coded = "Spouse" if relationship == "00157" 
-        replace relationship_coded = "Spouse" if relationship == "00158" 
-        replace relationship_coded = "Spouse" if relationship == "00159" 
-        replace relationship_coded = "Spouse" if relationship == "00160" 
-        replace relationship_coded = "Spouse" if relationship == "00161" 
-        replace relationship_coded = "Spouse" if relationship == "00162" 
-        replace relationship_coded = "Spouse" if relationship == "00163" 
-        replace relationship_coded = "Spouse" if relationship == "00164" 
-        replace relationship_coded = "Spouse" if relationship == "00199" 
-        replace relationship_coded = "Sibling" if relationship == "00231" 
-        replace relationship_coded = "Sibling" if relationship == "00232" 
-        replace relationship_coded = "Sibling" if relationship == "00233" 
-        replace relationship_coded = "Sibling" if relationship == "00234" 
-        replace relationship_coded = "Sibling" if relationship == "00235" 
-        replace relationship_coded = "Sibling" if relationship == "00236" 
-        replace relationship_coded = "Sibling" if relationship == "00238" 
-        replace relationship_coded = "Sibling" if relationship == "00251" 
-        replace relationship_coded = "Sibling" if relationship == "00252" 
-        replace relationship_coded = "Sibling" if relationship == "00253" 
-        replace relationship_coded = "Sibling" if relationship == "00254" 
-        replace relationship_coded = "Sibling" if relationship == "00255" 
-        replace relationship_coded = "Sibling" if relationship == "00256" 
-        replace relationship_coded = "Sibling" if relationship == "00257" 
-        replace relationship_coded = "Sibling" if relationship == "00258" 
-        replace relationship_coded = "Sibling" if relationship == "00259" 
-        replace relationship_coded = "Sibling" if relationship == "00260" 
-        replace relationship_coded = "Sibling" if relationship == "00261" 
-        replace relationship_coded = "Sibling" if relationship == "00262" 
-        replace relationship_coded = "Sibling" if relationship == "00263" 
-        replace relationship_coded = "Sibling" if relationship == "00264" 
-        replace relationship_coded = "Sibling" if relationship == "00299" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00351" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00352" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00353" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00354" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00355" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00356" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00357" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00358" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00359" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00360" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00361" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00362" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00363" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00364" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00365" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00366" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00367" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00368" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00369" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00370" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00371" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00372" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00373" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00374" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00375" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00376" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00377" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00378" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00379" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00380" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00381" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00382" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00383" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00384" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00385" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00386" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00387" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00388" 
-        replace relationship_coded = "Sibling-in-law" if relationship == "00399" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00431" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00432" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00433" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00434" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00451" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00452" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00453" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00454" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00455" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00456" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00457" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00458" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00459" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00460" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00461" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00462" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00463" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00464" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00465" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00466" 
-        replace relationship_coded = "Spouse of sibling-in-law" if relationship == "00499" 
-        replace relationship_coded = "Sibling or cousin" if relationship == "00531" 
-        replace relationship_coded = "Sibling or cousin" if relationship == "00532" 
-        replace relationship_coded = "Sibling or cousin" if relationship == "00551" 
-        replace relationship_coded = "Sibling or cousin" if relationship == "00552" 
-        replace relationship_coded = "Cousin" if relationship == "00631" 
-        replace relationship_coded = "Cousin" if relationship == "00632" 
-        replace relationship_coded = "Cousin" if relationship == "00633" 
-        replace relationship_coded = "Cousin" if relationship == "00634" 
-        replace relationship_coded = "Cousin" if relationship == "00635" 
-        replace relationship_coded = "Cousin" if relationship == "00651" 
-        replace relationship_coded = "Cousin" if relationship == "00652" 
-        replace relationship_coded = "Cousin" if relationship == "00653" 
-        replace relationship_coded = "Cousin" if relationship == "00654" 
-        replace relationship_coded = "Cousin" if relationship == "00655" 
-        replace relationship_coded = "Cousin" if relationship == "00656" 
-        replace relationship_coded = "Cousin" if relationship == "00657" 
-        replace relationship_coded = "Cousin" if relationship == "00658" 
-        replace relationship_coded = "Cousin" if relationship == "00659" 
-        replace relationship_coded = "Cousin" if relationship == "00660" 
-        replace relationship_coded = "Cousin" if relationship == "00661" 
-        replace relationship_coded = "Cousin" if relationship == "00662" 
-        replace relationship_coded = "Cousin" if relationship == "00663" 
-        replace relationship_coded = "Cousin" if relationship == "00664" 
-        replace relationship_coded = "Cousin" if relationship == "00665" 
-        replace relationship_coded = "Cousin" if relationship == "00666" 
-        replace relationship_coded = "Cousin" if relationship == "00699" 
-        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00731" 
-        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00732" 
-        replace relationship_coded = "Sibling of sibling-in-law" if relationship == "00799" 
-        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00851" 
-        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00852" 
-        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00853" 
-        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00854" 
-        replace relationship_coded = "Sibling-in-law of sibling-in-law" if relationship == "00899" 
-        replace relationship_coded = "Cousin of spouse" if relationship == "00951" 
-        replace relationship_coded = "Cousin of spouse" if relationship == "00952" 
-        replace relationship_coded = "Cousin of spouse" if relationship == "00999" 
-        replace relationship_coded = "Parent of child-in-law" if relationship == "01031" 
-        replace relationship_coded = "Parent of child-in-law" if relationship == "01032" 
-        replace relationship_coded = "Parent of child-in-law" if relationship == "01099" 
-        replace relationship_coded = "Other" if relationship == "10098" 
-        replace relationship_coded = "Parent" if relationship == "10101" 
-        replace relationship_coded = "Parent" if relationship == "10102" 
-        replace relationship_coded = "Parent" if relationship == "10103" 
-        replace relationship_coded = "Parent" if relationship == "10104" 
-        replace relationship_coded = "Parent" if relationship == "10105" 
-        replace relationship_coded = "Parent" if relationship == "10106" 
-        replace relationship_coded = "Parent" if relationship == "10107" 
-        replace relationship_coded = "Parent" if relationship == "10108" 
-        replace relationship_coded = "Parent" if relationship == "10109" 
-        replace relationship_coded = "Parent" if relationship == "10110" 
-        replace relationship_coded = "Parent" if relationship == "10111" 
-        replace relationship_coded = "Parent" if relationship == "10112" 
-        replace relationship_coded = "Parent" if relationship == "10113" 
-        replace relationship_coded = "Parent" if relationship == "10114" 
-        replace relationship_coded = "Parent" if relationship == "10115" 
-        replace relationship_coded = "Parent" if relationship == "10116" 
-        replace relationship_coded = "Parent" if relationship == "10117" 
-        replace relationship_coded = "Parent" if relationship == "10118" 
-        replace relationship_coded = "Parent" if relationship == "10119" 
-        replace relationship_coded = "Parent" if relationship == "10199" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10201" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10202" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10203" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10204" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10205" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10206" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10207" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10208" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10209" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10210" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10211" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10212" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10213" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10215" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10216" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10217" 
-        replace relationship_coded = "Parent-in-law" if relationship == "10299" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10301" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10302" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10303" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10304" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10305" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10306" 
-        replace relationship_coded = "Parent or aunt/uncle" if relationship == "10307" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10401" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10402" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10403" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10404" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10405" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10406" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10407" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10408" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10409" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10411" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10412" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10413" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10414" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10415" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10416" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10417" 
-        replace relationship_coded = "Aunt/uncle" if relationship == "10499" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10501" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10502" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10503" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10504" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10505" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10506" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10507" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10509" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10510" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10511" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10513" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10514" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10515" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10516" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10519" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10520" 
-        replace relationship_coded = "Spouse of aunt/uncle" if relationship == "10599" 
-        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10601" 
-        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10602" 
-        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10603" 
-        replace relationship_coded = "Aunt/uncle of spouse" if relationship == "10699" 
-        replace relationship_coded = "Spouse of aunt/uncle of spouse" if relationship == "10701" 
-        replace relationship_coded = "Spouse of aunt/uncle of spouse" if relationship == "10799" 
-        replace relationship_coded = "Cousin of parent" if relationship == "10801" 
-        replace relationship_coded = "Cousin of parent" if relationship == "10802" 
-        replace relationship_coded = "Cousin of parent" if relationship == "10899" 
-        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10901" 
-        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10902" 
-        replace relationship_coded = "Sibling or spouse of aunt/uncle" if relationship == "10999" 
-        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11001" 
-        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11002" 
-        replace relationship_coded = "Parent-in-law of sibling" if relationship == "11099" 
-        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11101" 
-        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11102" 
-        replace relationship_coded = "Parent-in-law of sibling of spouse" if relationship == "11199" 
-        replace relationship_coded = "Grandparent of child-in-law" if relationship == "11299" 
-        replace relationship_coded = "Other" if relationship == "15098" 
-        replace relationship_coded = "Child" if relationship == "15101" 
-        replace relationship_coded = "Child" if relationship == "15102" 
-        replace relationship_coded = "Child" if relationship == "15103" 
-        replace relationship_coded = "Child" if relationship == "15104" 
-        replace relationship_coded = "Child" if relationship == "15105" 
-        replace relationship_coded = "Child" if relationship == "15106" 
-        replace relationship_coded = "Child" if relationship == "15107" 
-        replace relationship_coded = "Child" if relationship == "15108" 
-        replace relationship_coded = "Child" if relationship == "15109" 
-        replace relationship_coded = "Child" if relationship == "15110" 
-        replace relationship_coded = "Child" if relationship == "15111" 
-        replace relationship_coded = "Child" if relationship == "15112" 
-        replace relationship_coded = "Child" if relationship == "15113" 
-        replace relationship_coded = "Child" if relationship == "15114" 
-        replace relationship_coded = "Child" if relationship == "15115" 
-        replace relationship_coded = "Child" if relationship == "15116" 
-        replace relationship_coded = "Child" if relationship == "15117" 
-        replace relationship_coded = "Child" if relationship == "15118" 
-        replace relationship_coded = "Child" if relationship == "15119" 
-        replace relationship_coded = "Child" if relationship == "15199" 
-        replace relationship_coded = "Child-in-law" if relationship == "15201" 
-        replace relationship_coded = "Child-in-law" if relationship == "15202" 
-        replace relationship_coded = "Child-in-law" if relationship == "15203" 
-        replace relationship_coded = "Child-in-law" if relationship == "15204" 
-        replace relationship_coded = "Child-in-law" if relationship == "15205" 
-        replace relationship_coded = "Child-in-law" if relationship == "15206" 
-        replace relationship_coded = "Child-in-law" if relationship == "15207" 
-        replace relationship_coded = "Child-in-law" if relationship == "15208" 
-        replace relationship_coded = "Child-in-law" if relationship == "15209" 
-        replace relationship_coded = "Child-in-law" if relationship == "15210" 
-        replace relationship_coded = "Child-in-law" if relationship == "15211" 
-        replace relationship_coded = "Child-in-law" if relationship == "15212" 
-        replace relationship_coded = "Child-in-law" if relationship == "15213" 
-        replace relationship_coded = "Child-in-law" if relationship == "15215" 
-        replace relationship_coded = "Child-in-law" if relationship == "15216" 
-        replace relationship_coded = "Child-in-law" if relationship == "15217" 
-        replace relationship_coded = "Child-in-law" if relationship == "15299" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15301" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15302" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15303" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15304" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15305" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15306" 
-        replace relationship_coded = "Child or Niece/nephew" if relationship == "15307" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15401" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15402" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15403" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15404" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15405" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15406" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15407" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15408" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15409" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15411" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15412" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15413" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15414" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15415" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15416" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15417" 
-        replace relationship_coded = "Niece/nephew" if relationship == "15499" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15501" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15502" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15503" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15504" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15505" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15506" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15507" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15509" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15510" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15511" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15513" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15514" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15515" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15516" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15519" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15520" 
-        replace relationship_coded = "Niece/nephew of spouse" if relationship == "15599" 
-        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15601" 
-        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15602" 
-        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15603" 
-        replace relationship_coded = "Spouse of niece/nephew" if relationship == "15699" 
-        replace relationship_coded = "Spouse of niece/nephew of spouse" if relationship == "15701" 
-        replace relationship_coded = "Spouse of niece/nephew of spouse" if relationship == "15799" 
-        replace relationship_coded = "Child of cousin" if relationship == "15801" 
-        replace relationship_coded = "Child of cousin" if relationship == "15802" 
-        replace relationship_coded = "Child of cousin" if relationship == "15899" 
-        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15901" 
-        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15902" 
-        replace relationship_coded = "Niece/nephew of spouse of sibling" if relationship == "15999" 
-        replace relationship_coded = "Sibling of child-in-law" if relationship == "16001" 
-        replace relationship_coded = "Sibling of child-in-law" if relationship == "16002" 
-        replace relationship_coded = "Sibling of child-in-law" if relationship == "16099" 
-        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16101" 
-        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16102" 
-        replace relationship_coded = "Spouse of sibling of child-in-law" if relationship == "16199" 
-        replace relationship_coded = "Parent-in-law of grandchild" if relationship == "16299" 
-        replace relationship_coded = "Grandparent" if relationship == "20098" 
-        replace relationship_coded = "Grandparent" if relationship == "20101" 
-        replace relationship_coded = "Grandparent" if relationship == "20102" 
-        replace relationship_coded = "Grandparent" if relationship == "20103" 
-        replace relationship_coded = "Grandparent" if relationship == "20104" 
-        replace relationship_coded = "Grandparent" if relationship == "20105" 
-        replace relationship_coded = "Grandparent" if relationship == "20106" 
-        replace relationship_coded = "Grandparent" if relationship == "20107" 
-        replace relationship_coded = "Grandparent" if relationship == "20108" 
-        replace relationship_coded = "Grandparent" if relationship == "20109" 
-        replace relationship_coded = "Grandparent" if relationship == "20110" 
-        replace relationship_coded = "Grandparent" if relationship == "20111" 
-        replace relationship_coded = "Grandparent" if relationship == "20112" 
-        replace relationship_coded = "Grandparent" if relationship == "20113" 
-        replace relationship_coded = "Grandparent" if relationship == "20114" 
-        replace relationship_coded = "Grandparent" if relationship == "20199" 
-        replace relationship_coded = "Grandparent of spouse" if relationship == "20201" 
-        replace relationship_coded = "Grandparent of spouse" if relationship == "20202" 
-        replace relationship_coded = "Grandparent of spouse" if relationship == "20203" 
-        replace relationship_coded = "Grandparent of spouse" if relationship == "20299" 
-        replace relationship_coded = "Grandparent or Grandaunt/uncle" if relationship == "20301" 
-        replace relationship_coded = "Grandaunt/uncle" if relationship == "20401" 
-        replace relationship_coded = "Grandaunt/uncle" if relationship == "20402" 
-        replace relationship_coded = "Grandaunt/uncle" if relationship == "20499" 
-        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20501" 
-        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20502" 
-        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20503" 
-        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20504" 
-        replace relationship_coded = "Grandparent or Great-grandparent" if relationship == "20505" 
-        replace relationship_coded = "Great-grandparent" if relationship == "20601" 
-        replace relationship_coded = "Great-grandparent" if relationship == "20602" 
-        replace relationship_coded = "Great-grandparent" if relationship == "20603" 
-        replace relationship_coded = "Great-grandparent" if relationship == "20604" 
-        replace relationship_coded = "Great-grandparent" if relationship == "20699" 
-        replace relationship_coded = "Great-great-grandparent" if relationship == "20799" 
-        replace relationship_coded = "Great-grandaunt/uncle" if relationship == "20899" 
-        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20901" 
-        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20902" 
-        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20903" 
-        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20904" 
-        replace relationship_coded = "Gaunt/guncle or parent of a/u by m" if relationship == "20999" 
-        replace relationship_coded = "Grandparent of spouse of sibling" if relationship == "21099" 
-        replace relationship_coded = "Great-grandparent of spouse" if relationship == "21199" 
-        replace relationship_coded = "Grandaunt/uncle of spouse" if relationship == "21299" 
-        replace relationship_coded = "Grandchild" if relationship == "25098" 
-        replace relationship_coded = "Grandchild" if relationship == "25101" 
-        replace relationship_coded = "Grandchild" if relationship == "25102" 
-        replace relationship_coded = "Grandchild" if relationship == "25103" 
-        replace relationship_coded = "Grandchild" if relationship == "25104" 
-        replace relationship_coded = "Grandchild" if relationship == "25105" 
-        replace relationship_coded = "Grandchild" if relationship == "25106" 
-        replace relationship_coded = "Grandchild" if relationship == "25107" 
-        replace relationship_coded = "Grandchild" if relationship == "25108" 
-        replace relationship_coded = "Grandchild" if relationship == "25109" 
-        replace relationship_coded = "Grandchild" if relationship == "25110" 
-        replace relationship_coded = "Grandchild" if relationship == "25111" 
-        replace relationship_coded = "Grandchild" if relationship == "25112" 
-        replace relationship_coded = "Grandchild" if relationship == "25113" 
-        replace relationship_coded = "Grandchild" if relationship == "25114" 
-        replace relationship_coded = "Grandchild" if relationship == "25199" 
-        replace relationship_coded = "Spouse of grandchild" if relationship == "25201" 
-        replace relationship_coded = "Spouse of grandchild" if relationship == "25202" 
-        replace relationship_coded = "Spouse of grandchild" if relationship == "25203" 
-        replace relationship_coded = "Spouse of grandchild" if relationship == "25299" 
-        replace relationship_coded = "Grandchild or Grandniece/nephew" if relationship == "25301" 
-        replace relationship_coded = "Grandniece/nephew" if relationship == "25401" 
-        replace relationship_coded = "Grandniece/nephew" if relationship == "25402" 
-        replace relationship_coded = "Grandniece/nephew" if relationship == "25499" 
-        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25501" 
-        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25502" 
-        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25503" 
-        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25504" 
-        replace relationship_coded = "Grandchild or Great-grandchild" if relationship == "25505" 
-        replace relationship_coded = "Great-grandchild" if relationship == "25601" 
-        replace relationship_coded = "Great-grandchild" if relationship == "25602" 
-        replace relationship_coded = "Great-grandchild" if relationship == "25603" 
-        replace relationship_coded = "Great-grandchild" if relationship == "25604" 
-        replace relationship_coded = "Great-grandchild" if relationship == "25699" 
-        replace relationship_coded = "Great-great-grandchild" if relationship == "25799" 
-        replace relationship_coded = "Great-grandniece/nephew" if relationship == "25899" 
-        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25901" 
-        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25902" 
-        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25903" 
-        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25904" 
-        replace relationship_coded = "Gniece/neph or niece/neph by m of child" if relationship == "25999" 
-        replace relationship_coded = "Sibling of spouse of grandchild" if relationship == "26099" 
-        replace relationship_coded = "Spouse of great-grandchild" if relationship == "26199" 
-        replace relationship_coded = "Spouse of grandniece/nephew" if relationship == "26299" 
-        replace relationship_coded = "Other relative" if relationship == "99731" 
-        replace relationship_coded = "Other non-relative" if relationship == "99831" 
-        label var relationship_coded "Relationship btwn person X and Y"
-
-        * check 00237 
-            
-    /* 07. Operate from person X's perspective --> drop years when non response */
-        drop if psid_status_x_ == "5"
-        drop if psid_status_x_ == "2"
-        drop if psid_status_x_ == "3"
-        drop if psid_status_x_ == "4"
-        drop person_number person_number_y psid_status_x_ relationship
-        
-    /* 08. Reshape again ... */
-        order ID yr
-        sort ID yr
-        preserve
-        reshape wide  relationship_coded coresidence_status, i(ID yr) j(ID_y)
-        sort ID yr ID_y
-        bysort ID yr: g index = _n
-        isid ID yr index
-        reshape wide ID_y relationship_coded coresidence_status psid_status_y_ rel_5_changed birth_year_y sex_y, i(ID yr) j(index)
-
-    /* 09. SAVE */
-        save "$output/relationships_roster_.dta", replace
-
-    /* 10. Keep just relationships for sample people 
-        clear 
-        use "_psid_long.dta"
-        drop if analytic_sample_indiv == 0
-        drop if in_ == 0
-        keep ID fam fam_id_ year
-        rename year yr
-        merge 1:1 ID yr using "relationships_roster_.dta"
-        drop if _merge == 2
-        sort ID yr
-        drop _merge
-        tempfile rel1
-        save `rel1'
-
-    /* 10. Merge on long heads to create relationship of ID to head in year panel */
-        use "${output}/_psid_long_heads.dta", clear
-        rename ID ID_y1
-        rename year yr
-        merge 1:m ID_y1 yr using "`rel1'"
-        order fam ID yr fam_id_
-        sort fam ID yr
-        drop if ID == . */
-
-}
-
-/* ------------------------------------- */
 * PART IV: Merge three datasets: 
 * 1. Long data: _psid_long.dta
 * 2. Long data with hhr changes: _hhr.csv
@@ -2169,13 +1672,14 @@ if `part3' == 1{
 if `part4' == 1{
     /* 01. Load _hhr.csv */
         import delimited "$output/_hhr.csv", clear
+        
         drop is_first is_last
-        local truefalse adult_came child_came adult_left child_left sib_came sib_left
+        local truefalse adult_came child_came adult_left child_left parent_came parent_left nonbio_parent_came nonbio_parent_left bio_parent_came bio_parent_left step_parent_came step_parent_left social_parent_came social_parent_left in_law_parent_came in_law_parent_left foster_parent_came foster_parent_left social_in_law_parent_came social_in_law_parent_left any_gpar_ggpar_came any_gpar_ggpar_left any_gpar_came any_gpar_left any_ggpar_came any_ggpar_left bio_grandparent_came bio_grandparent_left step_grandparent_came step_grandparent_left in_law_grandparent_came in_law_grandparent_left social_grandparent_came social_grandparent_left bio_greatgrandparent_came bio_greatgrandparent_left step_greatgrandparent_came step_greatgrandparent_left inlaw_greatgrandparent_came inlaw_greatgrandparent_left social_greatgrandparent_came social_greatgrandparent_left any_auntuncle_came any_auntuncle_left bio_auntuncle_came bio_auntuncle_left marriage_auntuncle_came marriage_auntuncle_left social_auntuncle_came social_auntuncle_left any_sibling_came any_sibling_left bio_sibling_came bio_sibling_left step_sibling_came step_sibling_left social_sibling_came social_sibling_left in_law_sibling_came in_law_sibling_left social_in_law_sibling_came social_in_law_sibling_left any_cousin_came any_cousin_left cousin_came cousin_left marriage_cousin_came marriage_cousin_left social_cousin_came social_cousin_left any_nephniece_came any_nephniece_left bio_nephniece_came bio_nephniece_left marriage_nephniece_came marriage_nephniece_left social_nephniece_came social_nephniece_left any_ownchild_came any_ownchild_left bio_child_came bio_child_left step_child_came step_child_left social_child_came social_child_left foster_child_came foster_child_left in_law_child_came in_law_child_left social_in_law_child_came social_in_law_child_left any_grandchild_came any_grandchild_left any_greatgrandchild_came any_greatgrandchild_left any_ggchild_came any_ggchild_left bio_grandchild_came bio_grandchild_left step_grandchild_came step_grandchild_left inlaw_grandchild_came inlaw_grandchild_left social_grandchild_came social_grandchild_left bio_greatgrandchild_came bio_greatgrandchild_left step_greatgrandchild_came step_greatgrandchild_left inlaw_greatgrandchild_came inlaw_greatgrandchild_left social_greatgrandchild_came social_greatgrandchild_left any_relativeother_came any_relativeother_left bio_relativeother_came bio_relativeother_left marriage_relativeother_came marriage_relativeother_left social_relativeother_came social_relativeother_left nonrelative_came nonrelative_left spouse_partner_came spouse_partner_left spouse_came spouse_left partner_came partner_left adult_came2 adult_left2 nonsib_adult_came nonsib_adult_left genabove_adult_came genabove_adult_left genabove2_adult_came genabove2_adult_left parent_adult_came parent_adult_left grandparent_adult_came grandparent_adult_left grandgrandparent_adult_came grandgrandparent_adult_left auntuncle_adult_came auntuncle_adult_left sibling_adult_came sibling_adult_left cousin_adult_came cousin_adult_left niece_neph_adult_came niece_neph_adult_left any_ownchild_adult_came any_ownchild_adult_left any_ggchild_adult_came any_ggchild_adult_left unknown_rel_came unknown_rel_left unknown_adult_came unknown_adult_left foster_other_came foster_other_left nonrelative_adult_came nonrelative_adult_left  any_relativeother_adult_came any_relativeother_adult_left spousepartner_adult_came spousepartner_adult_left 
         foreach var of local truefalse {
-            g `var'1 = 1 if `var' == "True"
-            replace `var'1 = 0 if `var' == "False"
-            drop `var'
-            rename `var'1 `var'
+            cap g `var'1 = 1 if `var' == "True"
+            cap replace `var'1 = 0 if `var' == "False"
+            cap drop `var'
+            cap rename `var'1 `var'
         }
         rename id ID 
 
@@ -2240,45 +1744,208 @@ if `part5' == 1{
         clear
         use "$output/_unclean_panel.dta", clear
         sort fam year fam_id_ ID
+        order fam year fam_id_ ID indiv_weight_
         drop analytic_sample_indiv analytic_sample_family 
+        label var indiv_weight_ "Individual weight"
         label var fam "1968 Family ID"
         label var ID "Individual ID"
         label var year "Year"
         label var age_ "Age of Individual"
         label var fam_id_ "Family ID in Year"
-        label var hhr "Household Roster (Excluding Self)"
-        label var ages_hhr "Ages of Household Roster (Excluding Self)"
-        label var rel_hhr "Relationship to Head of Household of Household Roster (Excluding Self)"
-        label var siblings "Siblings in family unit from FIMS"
-        label var parents "Parents in family unit from FIMS"
-        label var grandparents "Grandparents in family unit from FIMS"
-        drop hhr_prev ages_prev rel_prev
-        label var ids_left "IDs of people who left the household since last wave"
-        label var ids_came "IDs of people who came into the household since last wave"
-        label var ages_left "Ages of people who left the household since last wave"
-        label var ages_came "Ages of people who came into the household since last wave since last wave"
-        label var rel_left "Relationship to head of people who left the household since last wave"
-        label var rel_came "Relationship to head of people who came into the household since last wave"
-        label var sib_ages_came "Ages of siblings who came into the household since last wave"
-        label var sib_ages_left "Ages of siblings who left the household since last wave"
-        label var par_came "Parent came into household"
-        label var par_left "Parent left household"
-        label var gpar_came "Grandparent came into household"
-        label var gpar_left "Grandparent left household"
-        label var hhr_change "Household composition changed since last wave"
-        label var hhr_in "Household member(s) came into household since last wave"
-        label var hhr_out "Household member(s) left household since last wave"
-        label var adult_came "Adult came into household since last wave"
-        label var adult_left "Adult left household since last wave"
-        label var child_came "Child came into household since last wave"
-        label var child_left "Child left household since last wave"
-        label var sib_came "Sibling came into household since last wave"
-        label var sib_left "Sibling left household since last wave"
-        label var year_left_survey "Year left survey"
-        label var why_left_survey "Reason for leaving survey"
-        drop in_
-        drop sib_list par_list gpar_list
-        drop _merge
+        label var hhr_matrix "Household roster"
+        label var rel_matrix "Relationship roster"
+        label var age_matrix "Age roster"
+        label var hhr "Household roster, quotes"
+        label var rel "Relationship roster, quotes"
+        label var ages "Age roster, quotes"
+        label var why_left_survey "Why attrited"
+        label var year_left_survey "Year attrited"
+        label var hhr_prev "Previous household roster"
+        label var rel_prev "Previous relationship roster"
+        label var ages_prev "Previous age roster"
+        label var ids_left "IDs of household members who left"
+        label var ids_came "IDs of household members who came"
+        label var ages_left "Ages of hoysehold members who left"
+        label var ages_came "Ages of household members who came"
+        label var rel_left "Relationships of household members who left"
+        label var rel_came "Relationships of household members who came"
+        label var rel_left_desc "Relationships of household members who left, descriptions"
+        label var rel_came_desc "Relationships of household members who came, descriptions"
+        label var adult_came "Adult entered household"
+        label var child_came "Child entered household"
+        label var adult_left "Adult left household"
+        label var child_left "Child left household"
+        cap label var unknown_age_came "Unknown age entered household"
+        cap label var unknown_age_left "Unknown age left household"
+        label var parent_came "Parent entered household"
+        label var parent_left "Parent left household"
+        label var nonbio_parent_came "Non-biological parent entered household"
+        label var nonbio_parent_left "Non-biological parent left household"
+        label var bio_parent_came "Biological parent entered household"
+        label var bio_parent_left "Biological parent left household"
+        label var step_parent_came "Step-parent entered household"
+        label var step_parent_left "Step-parent left household"
+        label var social_parent_came "Social parent entered household"
+        label var social_parent_left "Social parent left household"
+        label var in_law_parent_came "Parent-in-law entered household"
+        label var in_law_parent_left "Parent-in-law left household"
+        label var foster_parent_came "Foster parent entered household"
+        label var foster_parent_left "Foster parent left household"
+        label var social_in_law_parent_came "Social parent-in-law entered household"
+        label var social_in_law_parent_left "Social parent-in-law left household"
+        label var any_gpar_ggpar_came "Any grandparent or great-grandparent entered household"
+        label var any_gpar_ggpar_left "Any grandparent or great-grandparent left household"
+        label var any_gpar_came "Any grandparent entered household"
+        label var any_gpar_left "Any grandparent left household"
+        label var any_ggpar_came "Any great-grandparent entered household"
+        label var any_ggpar_left "Any great-grandparent left household"
+        label var bio_grandparent_came "Biological grandparent entered household"
+        label var bio_grandparent_left "Biological grandparent left household"
+        label var step_grandparent_came "Step-grandparent entered household"
+        label var step_grandparent_left "Step-grandparent left household"
+        label var in_law_grandparent_came "Grandparent-in-law entered household"
+        label var in_law_grandparent_left "Grandparent-in-law left household"
+        label var social_grandparent_came "Social grandparent entered household"
+        label var social_grandparent_left "Social grandparent left household"
+        label var bio_greatgrandparent_came "Biological great-grandparent entered household"
+        label var bio_greatgrandparent_left "Biological great-grandparent left household"
+        label var step_greatgrandparent_came "Step-great-grandparent entered household"
+        label var step_greatgrandparent_left "Step-great-grandparent left household"
+        label var inlaw_greatgrandparent_came "Great-grandparent-in-law entered household"
+        label var inlaw_greatgrandparent_left "Great-grandparent-in-law left household"
+        label var social_greatgrandparent_came "Social great-grandparent entered household"
+        label var social_greatgrandparent_left "Social great-grandparent left household"
+        label var any_auntuncle_came "Any Aunt/uncle entered household"
+        label var any_auntuncle_left "Any Aunt/uncle left household"
+        label var bio_auntuncle_came "Biological aunt/uncle entered household"
+        label var bio_auntuncle_left "Biological aunt/uncle left household"
+        label var marriage_auntuncle_came "Marriage aunt/uncle entered household"
+        label var marriage_auntuncle_left "Marriage aunt/uncle left household"
+        label var social_auntuncle_came "Social aunt/uncle entered household"
+        label var social_auntuncle_left "Social aunt/uncle left household"
+        label var any_sibling_came "Any sibling entered household"
+        label var any_sibling_left "Any sibling left household"
+        label var bio_sibling_came "Biological sibling entered household"
+        label var bio_sibling_left "Biological sibling left household"
+        label var step_sibling_came "Step-sibling entered household"
+        label var step_sibling_left "Step-sibling left household"
+        label var social_sibling_came "Social sibling entered household"
+        label var social_sibling_left "Social sibling left household"
+        label var in_law_sibling_came "Sibling-in-law entered household"
+        label var in_law_sibling_left "Sibling-in-law left household"
+        label var social_in_law_sibling_came "Social sibling-in-law entered household"
+        label var social_in_law_sibling_left "Social sibling-in-law left household"
+        label var any_cousin_came "Any cousin entered household"
+        label var any_cousin_left "Any cousin left household"
+        rename cousin_came bio_cousin_came
+        label var bio_cousin_came "Biological cousin entered household"
+        rename cousin_left bio_cousin_left
+        label var bio_cousin_left "Biological cousin left household"
+        label var marriage_cousin_came "Marriage cousin entered household"
+        label var marriage_cousin_left "Marriage cousin left household"
+        label var social_cousin_came "Social cousin entered household"
+        label var social_cousin_left "Social cousin left household"
+        label var any_nephniece_came "Any nephew/niece entered household"
+        label var any_nephniece_left "Any nephew/niece left household"
+        label var bio_nephniece_came "Biological nephew/niece entered household"
+        label var bio_nephniece_left "Biological nephew/niece left household"
+        label var marriage_nephniece_came "Marriage nephew/niece entered household"
+        label var marriage_nephniece_left "Marriage nephew/niece left household"
+        label var social_nephniece_came "Social nephew/niece entered household"
+        label var social_nephniece_left "Social nephew/niece left household"
+        label var any_ownchild_came "Any own child entered household"
+        label var any_ownchild_left "Any own child left household"
+        label var bio_child_came "Biological child entered household"
+        label var bio_child_left "Biological child left household"
+        label var step_child_came "Step-child entered household"
+        label var step_child_left "Step-child left household"
+        label var social_child_came "Social child entered household"
+        label var social_child_left "Social child left household"
+        label var foster_child_came "Foster child entered household"
+        label var foster_child_left "Foster child left household"
+        label var in_law_child_came "Child-in-law entered household"
+        label var in_law_child_left "Child-in-law left household"
+        label var social_in_law_child_came "Social child-in-law entered household"
+        label var social_in_law_child_left "Social child-in-law left household"
+        label var any_grandchild_came "Any grandchild entered household"
+        label var any_grandchild_left "Any grandchild left household"
+        label var any_greatgrandchild_came "Any great-grandchild entered household"
+        label var any_greatgrandchild_left "Any great-grandchild left household"
+        label var any_ggchild_came "Any great-grandchild entered household"
+        label var any_ggchild_left "Any great-grandchild left household"
+        label var bio_grandchild_came "Biological grandchild entered household"
+        label var bio_grandchild_left "Biological grandchild left household"
+        label var step_grandchild_came "Step-grandchild entered household"
+        label var step_grandchild_left "Step-grandchild left household"
+        label var inlaw_grandchild_came "Grandchild-in-law entered household"
+        label var inlaw_grandchild_left "Grandchild-in-law left household"
+        label var social_grandchild_came "Social grandchild entered household"
+        label var social_grandchild_left "Social grandchild left household"
+        label var bio_greatgrandchild_came "Bio great-grandchild entered household"
+        label var bio_greatgrandchild_left "Bio great-grandchild left household"
+        label var step_greatgrandchild_came "Step great-grandchild entered household"
+        label var step_greatgrandchild_left "Step great-grandchild left household"
+        label var inlaw_greatgrandchild_came "Great-grandchild-in-law entered household"
+        label var inlaw_greatgrandchild_left "Great-grandchild-in-law left household"
+        label var social_greatgrandchild_came "Social great-grandchild entered household"
+        label var social_greatgrandchild_left "Social great-grandchild left household"
+        label var foster_other_came "Foster other entered household"
+        label var foster_other_left "Foster other left household"
+        label var any_relativeother_came "Any other relative entered household"
+        label var any_relativeother_left "Any other relative left household"
+        label var bio_relativeother_came "Biological other relative entered household"
+        label var bio_relativeother_left "Biological other relative left household"
+        label var marriage_relativeother_came "Marriage other relative entered household"
+        label var marriage_relativeother_left "Marriage other relative left household"
+        label var social_relativeother_came "Social other relative entered household"
+        label var social_relativeother_left "Social other relative left household"
+        label var nonrelative_came "Non-relative entered household"
+        label var nonrelative_left "Non-relative left household"
+        label var spouse_partner_came "Spouse/partner entered household"
+        label var spouse_partner_left "Spouse/partner left household"
+        label var spouse_came "Spouse entered household"
+        label var spouse_left "Spouse left household"
+        label var partner_came "Partner entered household"
+        label var partner_left "Partner left household"
+        label var age_first_observed "Age first observed"
+        label var sex "Sex"
+        label var in_ "Observed in year"
+        label var head_rel_ "Relationship to head/RP in year"
+        label var og_1968_family "Original 1968 family"
+        label var imm_latino_family "Immigrant/Latino family in 1968"
+        label var fam_sample "Sample"
+        label var waves "Waves observed"
+        label var waves_17_under "Waves observed under age 17"
+        label var waves_skipadjusted "Waves observed, skip adjusted"
+        label var waves_17_skipadjusted "Waves observed under age 17, skip adjusted"
+        label var sample_indiv_N "Individual in Sample N"
+        label var sample_family_N "Family in Sample N"
+        label var sample_indiv_A "Individual in Sample A"
+        label var sample_family_A "Family in Sample A"
+        label var sample_indiv_B "Individual in Sample B"
+        label var sample_family_B "Family in Sample B"
+
+        label var head_age "Age of Reference Person"
+        label var head_sex "Sex of Reference Person"
+        label var head_marital "Marital status of Reference Person"
+        label var head_race "Race of Reference Person"
+        *label var resp_to_head_rel "Relationship of respondent to head"
+        label var head_yrs_school "Years of Schooling of Reference Person"
+        label var head_education "Education of Reference Person - Buckets"
+        label var nonsib_adult_came "Non-sibling adult entered household"
+        label var nonsib_adult_left "Non-sibling adult left household"
+        label var genabove_adult_came "Generation above adult entered household"
+        label var genabove_adult_left "Generation above adult left household"
+        label var genabove2_adult_came "Generation above LEAN adult entered household"
+        label var genabove2_adult_left "Generation above LEAN adult left household"
+        label var unknown_rel_came "Unknown relationship entered household"
+        label var unknown_rel_left "Unknown relationship left household"
+
+
+        drop _merge resp_to_head_rel ages_hhr rel_hhr
+        drop sib_list par_list gpar_list siblings parents grandparents why_nonresponse_ lastobs
+
+
 
     /* 02. Reference Person Education - Fine Grained */
         g rp_education_A = "Less than HS" if head_education == 0 | head_education == 1 | head_education == 2 | head_education == 3 & year <= 1990
@@ -2371,7 +2038,6 @@ if `part5' == 1{
         label var relative_race "RP Race is Race of Biological Relative or Self"
 
     /* 09. Clean up */
-        drop rel_to_head why_nonresponse_ fu_new_head
         decode sex, g(sex1)
         drop sex
         rename sex1 sex
@@ -2387,6 +2053,8 @@ if `part5' == 1{
         egen max_birth_year = max(birth_year), by(ID)
         replace birth_year = max_birth_year
         replace birth_year = 2007 if birth_year > 2007 & sample_indiv_A == 1
+        drop max_birth_year
+
 
         label var birth_year "Birth Year of Individual"
 
@@ -2412,6 +2080,7 @@ if `part5' == 1{
         label var birth_cohort_B "Birth Cohort of Individual B"
 
     /* 12. Save */
+        sort ID year
         save "$output/_psid_analytic_sample.dta", replace
 
 }
@@ -2422,16 +2091,45 @@ if `part5' == 1{
 
 if `part6' == 1{
 
-    use "$output/_psid_analytic_sample.dta", clear
+    /* 01. Weights */
+        use "$output/_psid_analytic_sample.dta", clear
 
-    /* 00. Collapse & encode */
-        local maxvars par_came par_left gpar_came gpar_left hhr_change hhr_in hhr_out adult_came adult_left child_came child_left sib_came sib_left og_1968_family imm_latino_family birth_year
-        local minvars age_first_observed
-        local firstnm rp_race head_sex parent_self_race relative_race birth_cohort_A birth_cohort_B
-        local lastnm sex rp_education_A rp_education_B
-        local mean waves_17_under waves_17_skipadjusted sample_indiv_N sample_indiv_A sample_indiv_B 
+        replace indiv_weight_ = . if indiv_weight_ == 0
+        g strindiv_weight_ = string(indiv_weight_)
+        replace strindiv_weight_ = "" if strindiv_weight_ == "."
 
+
+    /* 02. Define vars for collapse */
+        * Unused variables: 
+            * age_first_observed better captured by min(age_), no?
+            * head_rel_ given by who_is_rp...; head_race is encoded in rp_race
+            local notusedstring hhr_matrix rel_matrix age_matrix hhr ages rel ids_left ids_came ages_left ages_came rel_left rel_came rel_left_desc rel_came_desc parent_self_race relative_race  hhr_prev rel_prev ages_prev
+            local notusednum fam_id_ age_first_observed in_  head_rel_ head_race
+
+        * Numeric variables
+            * use mean for number variables that should be constant within person over time.
+            local maxvars cluster_ind2023 strata_ind2023 birth_year fam adult_came child_came adult_left adult_came2 adult_left2 child_left parent_came parent_left nonbio_parent_came nonbio_parent_left bio_parent_came bio_parent_left step_parent_came step_parent_left social_parent_came social_parent_left in_law_parent_came in_law_parent_left foster_parent_came foster_parent_left social_in_law_parent_came social_in_law_parent_left any_gpar_ggpar_came any_gpar_ggpar_left any_gpar_came any_gpar_left any_ggpar_came any_ggpar_left bio_grandparent_came bio_grandparent_left step_grandparent_came step_grandparent_left in_law_grandparent_came in_law_grandparent_left social_grandparent_came social_grandparent_left bio_greatgrandparent_came bio_greatgrandparent_left step_greatgrandparent_came step_greatgrandparent_left inlaw_greatgrandparent_came inlaw_greatgrandparent_left social_greatgrandparent_came social_greatgrandparent_left any_auntuncle_came any_auntuncle_left bio_auntuncle_came bio_auntuncle_left marriage_auntuncle_came marriage_auntuncle_left social_auntuncle_came social_auntuncle_left any_sibling_came any_sibling_left bio_sibling_came bio_sibling_left step_sibling_came step_sibling_left social_sibling_came social_sibling_left in_law_sibling_came in_law_sibling_left social_in_law_sibling_came social_in_law_sibling_left any_cousin_came any_cousin_left bio_cousin_came bio_cousin_left marriage_cousin_came marriage_cousin_left social_cousin_came social_cousin_left any_nephniece_came any_nephniece_left bio_nephniece_came bio_nephniece_left marriage_nephniece_came marriage_nephniece_left social_nephniece_came social_nephniece_left any_ownchild_came any_ownchild_left bio_child_came bio_child_left step_child_came step_child_left social_child_came social_child_left foster_child_came foster_child_left in_law_child_came in_law_child_left social_in_law_child_came social_in_law_child_left any_grandchild_came any_grandchild_left any_greatgrandchild_came any_greatgrandchild_left any_ggchild_came any_ggchild_left bio_grandchild_came bio_grandchild_left step_grandchild_came step_grandchild_left inlaw_grandchild_came inlaw_grandchild_left social_grandchild_came social_grandchild_left bio_greatgrandchild_came bio_greatgrandchild_left step_greatgrandchild_came step_greatgrandchild_left inlaw_greatgrandchild_came inlaw_greatgrandchild_left social_greatgrandchild_came social_greatgrandchild_left foster_other_came foster_other_left any_relativeother_came any_relativeother_left bio_relativeother_came bio_relativeother_left marriage_relativeother_came marriage_relativeother_left social_relativeother_came social_relativeother_left nonrelative_came nonrelative_left spouse_partner_came spouse_partner_left spouse_came spouse_left partner_came partner_left nonsib_adult_came nonsib_adult_left genabove_adult_came genabove_adult_left genabove2_adult_came genabove2_adult_left unknown_rel_came unknown_rel_left parent_adult_came parent_adult_left grandparent_adult_came grandparent_adult_left grandgrandparent_adult_came grandgrandparent_adult_left auntuncle_adult_came auntuncle_adult_left sibling_adult_came sibling_adult_left cousin_adult_came cousin_adult_left niece_neph_adult_came niece_neph_adult_left unknown_adult_came unknown_adult_left nonrelative_adult_came nonrelative_adult_left spousepartner_adult_came spousepartner_adult_left 
+            local minvars year age_
+            local mean indiv_weight_ why_left_survey year_left_survey waves og_1968_family imm_latino_family waves_17_under waves_skipadjusted waves_17_skipadjusted sample_indiv_N sample_family_N sample_indiv_A sample_family_A sample_indiv_B sample_family_B 
+
+        * Strings
+            * currently reporting reference person ed and race at child's first observation --> therefore, reporting who is reference person at first observation as well 
+            local firstnm fam_sample rp_education_A rp_education_B rp_race who_is_rp_A who_is_rp_B who_is_rp_C birth_cohort_A birth_cohort_B
+            * since it's longitudinal data, we use most recent survey weight (captures attrition up to age 17)
+            local lastnm sex strindiv_weight_
+
+    /* 03. Collapse */
+        sort ID year
         collapse (max) `maxvars' (min) `minvars' (first) `firstnm' (last) `lastnm' (mean) `mean', by(ID)
+
+    /* 04. svyset */
+        destring(strindiv_weight_), replace
+        replace strindiv_weight_ = 0 if strindiv_weight == .
+        svyset cluster_ind2023 [pweight=strindiv_weight_], strata(strata_ind2023)
+
+    /* 05. Clean up */
+        rename year year_first_observed
+        rename age_ age_first_observed
 
         replace sex = "Unknown" if sex == "NA"
 
@@ -2458,111 +2156,315 @@ if `part6' == 1{
         label var birth_year "Birth Year"
 
         g adult_change = adult_came + adult_left
+        g genabove_adult_change = genabove_adult_came + genabove_adult_left
+        g genabove2_adult_change = genabove2_adult_came + genabove2_adult_left
+        g parent_adult_change = parent_adult_came + parent_adult_left
+        g grandparent_adult_change = grandparent_adult_came + grandparent_adult_left
+        g grandgrandparent_adult_change = grandgrandparent_adult_came + grandgrandparent_adult_left
+        g auntuncle_adult_change = auntuncle_adult_came + auntuncle_adult_left
+        g sibling_adult_change = sibling_adult_came + sibling_adult_left
+        g cousin_adult_change = cousin_adult_came + cousin_adult_left
+        g niece_neph_adult_change = niece_neph_adult_came + niece_neph_adult_left
+        g nonrelative_adult_change = nonrelative_adult_came + nonrelative_adult_left
+        g spousepartner_adult_change = spousepartner_adult_came + spousepartner_adult_left
+        g unknown_adult_change = unknown_adult_came + unknown_adult_left
+        g any_relativeother_adult_change = any_relativeother_came + any_relativeother_left
+
         replace adult_change = 1 if adult_change == 2
-        label var adult_change "Adult Change in Household" 
-        label var adult_came "Adult Entered Household"
-        label var adult_left "Adult Left Household"
-
-        g par_change = par_came + par_left
-        replace par_change = 1 if par_change == 2
-        label var par_change "Parent Change in Household"
-        label var par_came "Parent Entered Household"
-        label var par_left "Parent Left Household"
-
-        g gpar_change = gpar_came + gpar_left
-        replace gpar_change = 1 if gpar_change == 2
-        label var gpar_change "Grandparent Change in Household"
-        label var gpar_came "Grandparent Entered Household"
-        label var gpar_left "Grandparent Left Household"
+        replace genabove_adult_change = 1 if genabove_adult_change == 2
+        replace genabove2_adult_change = 1 if genabove2_adult_change == 2
+        replace parent_adult_change = 1 if parent_adult_change == 2
+        replace grandparent_adult_change = 1 if grandparent_adult_change == 2
+        replace grandgrandparent_adult_change = 1 if grandgrandparent_adult_change == 2
+        replace auntuncle_adult_change = 1 if auntuncle_adult_change == 2
+        replace sibling_adult_change = 1 if sibling_adult_change == 2
+        replace cousin_adult_change = 1 if cousin_adult_change == 2
+        replace niece_neph_adult_change = 1 if niece_neph_adult_change == 2
+        replace nonrelative_adult_change = 1 if nonrelative_adult_change == 2
+        replace spousepartner_adult_change = 1 if spousepartner_adult_change == 2
+        replace unknown_adult_change = 1 if unknown_adult_change == 2
+        replace any_relativeother_adult_change = 1 if any_relativeother_adult_change == 2
 
 
+    /* TI. Table 1: Sample Stats */
 
-    /* 00. Initialize folder for today's date & version */
-        local today = string(date(c(current_date), "DMY"), "%tdMonth-NN-CCYY")
-        local i = 1
-        local todayversion = "`today'"+"-v`i'"
-        capture mkdir "$output/_tables/`todayversion'"
-        local todayversion = "June-08-2026-v1"
+        /* Ia. Sample A Weighted */
+        svy, subpop(if sample_indiv_A == 1): tab sex1
+        svy, subpop(if sample_indiv_A == 1): tab rp_race1
+        svy, subpop(if sample_indiv_A == 1): tab rp_education_B1
+        svy, subpop(if sample_indiv_A == 1): mean birth_year
+        svy, subpop(if sample_indiv_A == 1): tab birth_cohort_B1
 
-    /* 00. Tempfiles for Sample N, A, B */
-        tempfile sample_N
-        save `sample_N', replace
+        /* Ib. Sample A Unweighted */
+        tab sex1 if sample_indiv_A == 1
+        tab rp_race1 if sample_indiv_A == 1
+        tab rp_education_B1 if sample_indiv_A == 1
+        mean birth_year if sample_indiv_A == 1
+        tab birth_cohort_B1 if sample_indiv_A == 1
 
-        drop if sample_indiv_A == 0
-        tempfile sample_A
-        save `sample_A', replace
+        /* Ic. Sample B Weighted */
+        svy, subpop(if sample_indiv_B == 1): tab sex1
+        svy, subpop(if sample_indiv_B == 1): tab rp_race1
+        svy, subpop(if sample_indiv_B == 1): tab rp_education_B1
+        svy, subpop(if sample_indiv_B == 1): mean birth_year
+        svy, subpop(if sample_indiv_B == 1): tab birth_cohort_B1
 
-        clear
-        use `sample_N', clear
-        drop if sample_indiv_B == 0
-        tempfile sample_B
-        save `sample_B', replace
+        /* Id. Sample B Unweighted */
+        tab sex1 if sample_indiv_B == 1
+        tab rp_race1 if sample_indiv_B == 1
+        tab rp_education_B1 if sample_indiv_B == 1
+        mean birth_year if sample_indiv_B == 1
+        tab birth_cohort_B1 if sample_indiv_B == 1
+
+        /* Ie. Sample N Weighted*/
+        svy, subpop(if sample_indiv_N == 1): tab sex1
+        svy, subpop(if sample_indiv_N == 1): tab rp_race1
+        svy, subpop(if sample_indiv_N == 1): tab rp_education_B1
+        svy, subpop(if sample_indiv_N == 1): mean birth_year
+        svy, subpop(if sample_indiv_N == 1): tab birth_cohort_B1
+
+        /* If. Sample N Unweighted */
+        tab sex1 if sample_indiv_N == 1
+        tab rp_race1 if sample_indiv_N == 1
+        tab rp_education_B1 if sample_indiv_N == 1
+        mean birth_year if sample_indiv_N == 1
+        tab birth_cohort_B1 if sample_indiv_N == 1
+
+    /* TII. Table 2: Adult ins, outs, changes */
+
+        /* IIa. Adult in: unweighted, sample A */
+            tab adult_came if sample_indiv_A == 1
+            tab genabove_adult_came if sample_indiv_A == 1
+            tab genabove2_adult_came if sample_indiv_A == 1
+            tab parent_adult_came if sample_indiv_A == 1
+            tab grandparent_adult_came if sample_indiv_A == 1
+            tab grandgrandparent_adult_came if sample_indiv_A == 1
+            tab auntuncle_adult_came if sample_indiv_A == 1
+            tab sibling_adult_came if sample_indiv_A == 1
+            tab cousin_adult_came if sample_indiv_A == 1
+            tab niece_neph_adult_came if sample_indiv_A == 1
+            tab unknown_adult_came if sample_indiv_A == 1
+            tab nonrelative_adult_came if sample_indiv_A == 1
+            tab spousepartner_adult_came if sample_indiv_A == 1
+            tab any_relativeother_came if sample_indiv_A == 1
+
+        /* IIb. Adult in: unweighted, sample B */
+            tab adult_came if sample_indiv_B == 1
+            tab genabove_adult_came if sample_indiv_B == 1
+            tab genabove2_adult_came if sample_indiv_B == 1
+            tab parent_adult_came if sample_indiv_B == 1
+            tab grandparent_adult_came if sample_indiv_B == 1
+            tab grandgrandparent_adult_came if sample_indiv_B == 1
+            tab auntuncle_adult_came if sample_indiv_B == 1
+            tab sibling_adult_came if sample_indiv_B == 1
+            tab cousin_adult_came if sample_indiv_B == 1
+            tab niece_neph_adult_came if sample_indiv_B == 1
+            tab unknown_adult_came if sample_indiv_B == 1
+            tab nonrelative_adult_came if sample_indiv_B == 1
+            tab spousepartner_adult_came if sample_indiv_B == 1
+            tab any_relativeother_came if sample_indiv_B == 1
+
+        /* IIc. Adult in: Weighted, sample A */
+            svy, subpop(if sample_indiv_A == 1): tab adult_came 
+            svy, subpop(if sample_indiv_A == 1): tab genabove_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab genabove2_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_came 
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_came 
+            svy, subpop(if sample_indiv_A == 1): tab grandparent_adult_came 
+            svy, subpop(if sample_indiv_A == 1): tab grandgrandparent_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab auntuncle_adult_came 
+            svy, subpop(if sample_indiv_A == 1): tab sibling_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab cousin_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab niece_neph_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab unknown_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab nonrelative_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab spousepartner_adult_came
+            svy, subpop(if sample_indiv_A == 1): tab any_relativeother_came
+
+        /* IId. Adult in: Weighted, sample B */
+            svy, subpop(if sample_indiv_B == 1): tab adult_came 
+            svy, subpop(if sample_indiv_B == 1): tab genabove_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab genabove2_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab parent_adult_came 
+            svy, subpop(if sample_indiv_B == 1): tab parent_adult_came 
+            svy, subpop(if sample_indiv_B == 1): tab grandparent_adult_came 
+            svy, subpop(if sample_indiv_B == 1): tab grandgrandparent_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab auntuncle_adult_came 
+            svy, subpop(if sample_indiv_B == 1): tab sibling_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab cousin_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab niece_neph_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab nonrelative_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab spousepartner_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab unknown_adult_came
+            svy, subpop(if sample_indiv_B == 1): tab any_relativeother_came
+
+        /* IIe. Adult out: Unweighted, sample A */
+            tab adult_left if sample_indiv_A == 1
+            tab genabove_adult_left if sample_indiv_A == 1
+            tab genabove2_adult_left if sample_indiv_A == 1
+            tab parent_adult_left if sample_indiv_A == 1
+            tab grandparent_adult_left if sample_indiv_A == 1
+            tab grandgrandparent_adult_left if sample_indiv_A == 1
+            tab auntuncle_adult_left if sample_indiv_A == 1
+            tab sibling_adult_left if sample_indiv_A == 1
+            tab cousin_adult_left if sample_indiv_A == 1
+            tab niece_neph_adult_left if sample_indiv_A == 1
+            tab nonrelative_adult_left if sample_indiv_A == 1
+            tab spousepartner_adult_left if sample_indiv_A == 1
+            tab unknown_adult_left if sample_indiv_A == 1
+            tab any_relativeother_left if sample_indiv_A == 1
+    
+        /* IIf. Adult out: Unweighted, sample B */
+            tab adult_left if sample_indiv_B == 1
+            tab genabove_adult_left if sample_indiv_B == 1
+            tab genabove2_adult_left  if sample_indiv_B == 1
+            tab parent_adult_left if sample_indiv_B == 1
+            tab grandparent_adult_left if sample_indiv_B == 1
+            tab grandgrandparent_adult_left if sample_indiv_B == 1
+            tab auntuncle_adult_left if sample_indiv_B == 1
+            tab sibling_adult_left if sample_indiv_B == 1
+            tab cousin_adult_left if sample_indiv_B == 1
+            tab niece_neph_adult_left if sample_indiv_B == 1
+            tab nonrelative_adult_left if sample_indiv_B == 1
+            tab spousepartner_adult_left if sample_indiv_B == 1
+            tab unknown_adult_left if sample_indiv_B == 1
+            tab any_relativeother_left if sample_indiv_B == 1
+
+        
+        /* IIg. Adult out: Weighted, sample A */
+            svy, subpop(if sample_indiv_A == 1): tab adult_left
+            svy, subpop(if sample_indiv_A == 1): tab genabove_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab genabove2_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_left 
+            svy, subpop(if sample_indiv_A == 1): tab grandparent_adult_left 
+            svy, subpop(if sample_indiv_A == 1): tab grandgrandparent_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab auntuncle_adult_left 
+            svy, subpop(if sample_indiv_A == 1): tab sibling_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab cousin_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab niece_neph_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab nonrelative_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab spousepartner_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab unknown_adult_left
+            svy, subpop(if sample_indiv_A == 1): tab any_relativeother_left
+        
+        /* IIh. Adult out: Weighted, sample B */
+            svy, subpop(if sample_indiv_B == 1): tab adult_left 
+            svy, subpop(if sample_indiv_B == 1): tab genabove_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab genabove2_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab parent_adult_left 
+            svy, subpop(if sample_indiv_B == 1): tab grandparent_adult_left 
+            svy, subpop(if sample_indiv_B == 1): tab grandgrandparent_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab auntuncle_adult_left 
+            svy, subpop(if sample_indiv_B == 1): tab sibling_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab cousin_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab niece_neph_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab nonrelative_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab spousepartner_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab unknown_adult_left
+            svy, subpop(if sample_indiv_B == 1): tab any_relativeother_left
 
 
+        
+
+        /* IIi. Adult change: Unweighted, sample A */
+            tab adult_change if sample_indiv_A == 1
+            tab genabove_adult_change if sample_indiv_A == 1
+            tab genabove2_adult_change if sample_indiv_A == 1
+            tab parent_adult_change if sample_indiv_A == 1
+            tab grandparent_adult_change if sample_indiv_A == 1
+            tab grandgrandparent_adult_change if sample_indiv_A == 1
+            tab auntuncle_adult_change if sample_indiv_A == 1
+            tab sibling_adult_change if sample_indiv_A == 1
+            tab cousin_adult_change if sample_indiv_A == 1
+            tab niece_neph_adult_change if sample_indiv_A == 1
+            tab nonrelative_adult_change if sample_indiv_A == 1
+            tab spousepartner_adult_change if sample_indiv_A == 1
+            tab unknown_adult_change if sample_indiv_A == 1
+            tab any_relativeother_adult_change if sample_indiv_A == 1
+
+        /* IIj. Adult change: Unweighted, sample B */
+            tab adult_change if sample_indiv_B == 1
+            tab genabove_adult_change if sample_indiv_B == 1
+            tab genabove2_adult_change if sample_indiv_B == 1
+            tab parent_adult_change if sample_indiv_B == 1
+            tab grandparent_adult_change if sample_indiv_B == 1
+            tab grandgrandparent_adult_change if sample_indiv_B == 1
+            tab auntuncle_adult_change if sample_indiv_B == 1
+            tab sibling_adult_change if sample_indiv_B == 1
+            tab cousin_adult_change if sample_indiv_B == 1
+            tab niece_neph_adult_change if sample_indiv_B == 1
+            tab nonrelative_adult_change if sample_indiv_B == 1
+            tab spousepartner_adult_change if sample_indiv_B == 1
+            tab unknown_adult_change if sample_indiv_B == 1
+            tab any_relativeother_adult_change if sample_indiv_B == 1
+
+        /* IIk. Adult change: Weighted, sample A */
+            svy, subpop(if sample_indiv_A == 1): tab adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab genabove_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab genabove2_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab grandparent_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab grandgrandparent_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab auntuncle_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab sibling_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab cousin_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab niece_neph_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab unknown_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab nonrelative_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab spousepartner_adult_change 
+            svy, subpop(if sample_indiv_A == 1): tab any_relativeother_adult_change 
+
+        /* IIl. Adult change: Weighted, sample B */
+            svy, subpop(if sample_indiv_B == 1): tab adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab genabove_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab genabove2_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab parent_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab grandparent_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab grandgrandparent_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab auntuncle_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab sibling_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab cousin_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab niece_neph_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab nonrelative_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab spousepartner_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab unknown_adult_change 
+            svy, subpop(if sample_indiv_B == 1): tab any_relativeother_adult_change 
 
 
-    /* 01. Table 1. Descriptive Statistics for Samples A, B, and N. 
-        Sex, rp race, rp education, birth year, and birth cohort */
+    /* TIII. Table 3: Adult ins, outs, changes by birth cohort */
+        /* IIIa. Adult in: Weighted, sample A by Cohort III
+            svy, subpop(if sample_indiv_A == 1): tab adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab genabove_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab genabove2_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab grandparent_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab grandgrandparent_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab auntuncle_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab sibling_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab cousin_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab niece_neph_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab nonrelative_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab spousepartner_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab unknown_adult_came birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab any_relativeother_came birth_cohort_B
 
-        /* 01a. Sample A */
-            use `sample_A', clear
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
-            collect export "$output/_tables/`todayversion'/table1_A.tex", replace
-
-
-        /* 01b. Sample B */
-            use `sample_B', clear
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
-            collect export "$output/_tables/`todayversion'/table1_B.tex", replace
-
-        /* 01c. Sample N */
-            use `sample_N', clear
-            dtable i.sex1 i.rp_race1 i.rp_education_B1 birth_year i.birth_cohort_A1 i.birth_cohort_B1, define(minmax = min max, delimiter(", ")) sformat("(%s)" minmax) continuous(birth_year, statistics(mean minmax)) nformat(%12.0f mean minmax) column(summary("\shortstack{N(%)\\Avg (min, max)}"))
-            collect export "$output/_tables/`todayversion'/table1_N.tex", replace
-
-
-    /* 02. Table 2. Frequency of Adult Changes */
-
-        /* 02a. Sample A */
-            use `sample_A', clear
-            dtable i.adult_change i.adult_came i.adult_left i.par_change i.par_came i.par_left i.gpar_change i.gpar_came i.gpar_left, column(summary("N(%)")) nformat(%12.1f percent) nformat(%12.0f N)
-
-        /* 02b. Sample B */
-            use `sample_B', clear
-            dtable i.adult_change i.adult_came i.adult_left i.par_change i.par_came i.par_left i.gpar_change i.gpar_came i.gpar_left, column(summary("N(%)")) nformat(%12.1f percent) nformat(%12.0f N)
-
-
-
-    /* 03. Table 3. Adult Changes by Birth Cohort */
-
-        /* 02a. Sample A */
-            use `sample_A', clear
-            dtable i.birth_cohort_B1, by (adult_change)
-            
-
-        /* 02b. Sample B */
-            use `sample_B', clear
-            dtable i.birth_cohort_B1, by (adult_change)
-
-
-
-    /* 04. Table 4. */
-
-    /* 05. Table 5. */
-
-    /* 06. Table 6. */
-
-    /* 07. Table 7. */
-
-    /* 08. Table 8. */
-
-    /* 09. Table 9. */
-
-    /* 10. Table 10. */
-
-
+        /* IIIb. Adult out: Weighted, sample A by birth cIIIort*/
+            svy, subpop(if sample_indiv_A == 1): tab adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab genabove_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab genabove2_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab parent_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab grandparent_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab grandgrandparent_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab auntuncle_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab sibling_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab cousin_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab niece_neph_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab nonrelative_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab spousepartner_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab unknown_adult_left birth_cohort_B
+            svy, subpop(if sample_indiv_A == 1): tab any_relativeother_left birth_cohort_B
 
 
 }
-
 
